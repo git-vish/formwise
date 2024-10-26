@@ -1,0 +1,24 @@
+default_language_version:
+  python: python3.12
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.7.1
+    hooks:
+      # Run the formatter
+      - id: ruff-format
+        files: ^backend/.*\.py$
+      # Run the linter
+      - id: ruff
+        args: [--fix]
+        files: ^backend/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: requirements-txt
+        name: Update requirements.txt
+        entry: bash -c 'cd backend && uv pip compile pyproject.toml > requirements.txt'
+        language: system
+        pass_filenames: false
+        files: ^backend/pyproject\.toml$
+
