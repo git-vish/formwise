@@ -12,8 +12,8 @@ class Settings(BaseSettings):
     APP_VERSION: str = "0.1.0"
 
     # *** MongoDB settings ***
-    MONGO_URI: SecretStr
-    MONGO_DATABASE: str = "formwise"
+    MONGO_CONNECTION_STRING: SecretStr
+    MONGO_DATABASE_NAME: str = "formwise"
 
 
 # Instantiate settings
