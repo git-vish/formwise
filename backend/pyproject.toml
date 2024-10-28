@@ -8,7 +8,9 @@ dependencies = [
     "asgi-correlation-id>=4.3.4",
     "beanie[srv]>=1.27.0",
     "fastapi[standard]>=0.115.3",
+    "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.6.0",
+    "pyjwt>=2.9.0",
 ]
 
 [tool.uv]

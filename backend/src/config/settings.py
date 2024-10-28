@@ -4,7 +4,6 @@ from pydantic import UrlConstraints
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Custom types
 MongoDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
 
 
@@ -22,15 +21,15 @@ class Settings(BaseSettings):
     MONGO_CONNECTION_STRING: MongoDsn
     MONGO_DATABASE_NAME: str = "formwise"
 
+    # *** JWT settings ***
+    JWT_SECRET_KEY: str
+    JWT_ALGORITHM: str = "HS256"
+    JWT_ACCESS_TOKEN_EXP: int = 60  # 1 hour
+
     @property
     def allowed_origins(self) -> list[str]:
-        """Returns a list of allowed origins.
-
-        Returns:
-            list[str]: A list of allowed origins.
-        """
+        """Returns a list of allowed origins."""
         return [origin.strip() for origin in self.APP_ALLOWED_ORIGINS.split(",")]
 
 
-# Instantiate settings
 settings = Settings()

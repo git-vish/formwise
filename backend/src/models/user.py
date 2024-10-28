@@ -8,35 +8,10 @@ from pydantic import BaseModel, EmailStr, Field, HttpUrl, SecretStr
 
 
 class AuthProvider(StrEnum):
-    """Enumeration for authentication providers."""
+    """Authentication provider options."""
 
     EMAIL = "email"
     GOOGLE = "google"
-
-
-class UserAuth(BaseModel):
-    """Model for user creation and login request."""
-
-    email: EmailStr
-    password: SecretStr
-
-
-class UserInfo(BaseModel):
-    """Model for user info response."""
-
-    email: EmailStr
-    first_name: str | None = None
-    last_name: str | None = None
-    picture: HttpUrl | None = None
-    auth_provider: AuthProvider
-
-
-class UserUpdate(BaseModel):
-    """Model for user update request."""
-
-    first_name: str | None = None
-    last_name: str | None = None
-    password: SecretStr | None = None
 
 
 class User(Document):
@@ -57,25 +32,49 @@ class User(Document):
     updated_at: datetime = Field(default_factory=lambda: datetime.now(tz=UTC))
 
     @before_event(Update, SaveChanges)
-    def _set_updated_at(self) -> None:
-        """Sets updated_at before updating."""
+    def _update_timestamp(self) -> None:
+        """Updates updated_at timestamp before updating."""
         self.updated_at = datetime.now(tz=UTC)
 
     @classmethod
     async def get_by_email(cls, email: EmailStr) -> Optional["User"]:
-        """Retrieves a user by email.
+        """Fetches a user by email.
 
         Args:
             email (EmailStr): Email of the user.
 
         Returns:
-            Optional["User"]: User object or None if not found.
+            Optional[User]: User instance if found, None otherwise.
         """
         return await cls.find_one(cls.email == email)
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"
 
-    def to_info(self) -> UserInfo:
-        """Converts User to UserInfo."""
-        return UserInfo.model_validate(self.model_dump())
+    def __str__(self) -> str:
+        return self.__repr__()
+
+
+class UserAuth(BaseModel):
+    """Model for user creation and login request."""
+
+    email: EmailStr
+    password: SecretStr = Field(None, min_length=6, max_length=64)
+
+
+class UserInfo(BaseModel):
+    """Model for user info response."""
+
+    email: EmailStr
+    first_name: str | None = None
+    last_name: str | None = None
+    picture: HttpUrl | None = None
+    auth_provider: AuthProvider
+
+
+class UserUpdate(BaseModel):
+    """Model for user update request."""
+
+    first_name: str = Field(None, max_length=50)
+    last_name: str = Field(None, max_length=50)
+    password: SecretStr = Field(None, min_length=6, max_length=64)

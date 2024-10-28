@@ -9,6 +9,8 @@ anyio==4.6.2.post1
     #   watchfiles
 asgi-correlation-id==4.3.4
     # via formwise (pyproject.toml)
+bcrypt==4.2.0
+    # via passlib
 beanie==1.27.0
     # via formwise (pyproject.toml)
 certifi==2024.8.30
@@ -26,7 +28,7 @@ dnspython==2.7.0
     #   pymongo
 email-validator==2.2.0
     # via fastapi
-fastapi==0.115.3
+fastapi==0.115.4
     # via formwise (pyproject.toml)
 fastapi-cli==0.0.5
     # via fastapi
@@ -59,6 +61,8 @@ motor==3.6.0
     # via beanie
 packaging==24.1
     # via asgi-correlation-id
+passlib==1.7.4
+    # via formwise (pyproject.toml)
 pydantic==2.9.2
     # via
     #   beanie
@@ -71,13 +75,15 @@ pydantic-settings==2.6.0
     # via formwise (pyproject.toml)
 pygments==2.18.0
     # via rich
+pyjwt==2.9.0
+    # via formwise (pyproject.toml)
 pymongo==4.9.2
     # via motor
 python-dotenv==1.0.1
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.12
+python-multipart==0.0.16
     # via fastapi
 pyyaml==6.0.2
     # via uvicorn
@@ -89,7 +95,7 @@ sniffio==1.3.1
     # via
     #   anyio
     #   httpx
-starlette==0.41.0
+starlette==0.41.2
     # via
     #   asgi-correlation-id
     #   fastapi
