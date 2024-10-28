@@ -1,7 +1,12 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
+from src.exceptions import (
+    AuthenticationError,
+    EntityAlreadyExistsError,
+    EntityNotFoundError,
+)
 from src.models.auth import Token
 from src.models.user import AuthProvider, User, UserAuth
 from src.utils.security import create_access_token, get_password_hash, verify_password
@@ -19,10 +24,7 @@ async def register(user: UserAuth):
     logger.info(f"Registering user: {user.email}")
 
     if await User.get_by_email(email=user.email):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User with this email already exists",
-        )
+        raise EntityAlreadyExistsError("User with this email already exists.")
 
     hashed_password = get_password_hash(user.password.get_secret_value())
     new_user = User(
@@ -32,7 +34,7 @@ async def register(user: UserAuth):
     )
     await new_user.create()
     logger.info(f"Registered user: {new_user}")
-    return {"message": "Registration successful"}
+    return {"detail": "Registration successful"}
 
 
 async def authenticate_user(email: str, password: str) -> User:
@@ -49,12 +51,13 @@ async def authenticate_user(email: str, password: str) -> User:
         HTTPException: If authentication fails.
     """
     user = await User.get_by_email(email=email)
-    if not user or not verify_password(password, user.hashed_password):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+
+    if not user:
+        raise EntityNotFoundError("User not found.")
+
+    if not verify_password(password, user.hashed_password):
+        raise AuthenticationError("Invalid credentials.")
+
     logger.info(f"Authenticated user: {user}")
     return user
 

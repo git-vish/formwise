@@ -3,11 +3,12 @@ from datetime import UTC, datetime, timedelta
 from typing import Annotated
 
 import jwt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 
 from src.config import settings
+from src.exceptions import AuthenticationError
 from src.models.user import User
 
 logger = logging.getLogger(__name__)
@@ -74,20 +75,15 @@ async def get_current_user(
     Raises:
         HTTPException: If the token is invalid or user not found.
     """
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
     token = credentials.credentials
     try:
         payload = jwt.decode(
             token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
         )
     except jwt.PyJWTError as err:
-        raise credentials_exception from err
+        raise AuthenticationError("Could not validate credentials.") from err
 
     if (email := payload.get("sub")) and (user := await User.get_by_email(email)):
         return user
 
-    raise credentials_exception
+    raise AuthenticationError("Could not validate credentials.")

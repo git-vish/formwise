@@ -3,12 +3,12 @@ from contextlib import asynccontextmanager
 
 from asgi_correlation_id import CorrelationIdMiddleware
 from beanie import init_beanie
-from fastapi import APIRouter, FastAPI, HTTPException, Request
-from fastapi.exception_handlers import http_exception_handler
+from fastapi import APIRouter, FastAPI
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.middleware.cors import CORSMiddleware
 
 from src.config import configure_logging, settings
+from src.exceptions.handler import add_exception_handlers
 from src.models import DOCUMENT_MODELS
 from src.routers import auth, user
 
@@ -51,28 +51,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.exception_handler(HTTPException)
-async def handle_http_exception(request: Request, exc: HTTPException):
-    """Handle HTTP exceptions.
-    Called when an HTTPException is raised.
-    It logs the exception and returns the HTTP exception.
-
-    Args:
-        request (Request): The request.
-        exc (HTTPException): The HTTP exception.
-
-    Returns:
-        HTTPException: The HTTP exception.
-    """
-    logger.error(f"HTTPException: {exc.status_code}, {exc.detail}")
-    return await http_exception_handler(request, exc)
+add_exception_handlers(app)
 
 
 @app.get("/ping", status_code=200)
 async def ping():
     """Health check endpoint."""
-    return {"message": "pong"}
+    return {"detail": "pong"}
 
 
 # API v1 routes
