@@ -37,7 +37,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
       <head />
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-background font-sans antialiased scroll-smooth",
           geistSans.variable,
           geistMono.variable
         )}
