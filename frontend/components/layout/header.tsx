@@ -16,7 +16,8 @@ export default function Header() {
           <Button className="ml-2">
             <Link href="/register">Sign Up</Link>
           </Button>
-          <ThemeToggle />
+          {/* TODO: remove mode toggle */}
+          {process.env.NODE_ENV === "development" && <ThemeToggle />}
         </div>
       </nav>
     </header>
