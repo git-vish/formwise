@@ -107,7 +107,7 @@ export default function Register() {
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
-                type="password"
+                type="text"
                 {...form.register("confirmPassword")}
               />
               {form.formState.errors.confirmPassword && (

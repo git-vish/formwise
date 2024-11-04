@@ -20,7 +20,7 @@ import Logo from "@/components/layout/logo";
 import { AUTH_URLS } from "@/config/api-urls";
 import { useRouter } from "next/navigation";
 import { setToken } from "@/lib/auth";
-import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   email: z
@@ -37,7 +37,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const router = useRouter();
-  const [error, setError] = useState("");
+  const { toast } = useToast();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -70,7 +70,10 @@ export default function Login() {
       setToken(data.access_token);
       router.push("/");
     } catch (error) {
-      setError((error as Error).message);
+      toast({
+        title: (error as Error).message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -147,7 +150,6 @@ export default function Login() {
           </div>
         </CardContent>
       </Card>
-      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }
