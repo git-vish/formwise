@@ -1,0 +1,15 @@
+// Base API configuration
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
+const API_VERSION = "v1";
+const BASE_API_URL = `${API_BASE_URL}/${API_VERSION}`;
+
+// Auth Endpoints
+export const AUTH_URLS = {
+  LOGIN: `${BASE_API_URL}/auth/login`,
+  REGISTER: `${BASE_API_URL}/auth/register`,
+};
+
+// User Endpoints
+export const USER_URLS = {
+  ME: `${BASE_API_URL}/users/me`,
+};

@@ -16,7 +16,7 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 logger = logging.getLogger(__name__)
 
 
-@router.post("/register", status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def register(user: UserAuth):
     """Registers a new user with an email and password.
     Returns a success message if the user is created.
@@ -34,7 +34,8 @@ async def register(user: UserAuth):
     )
     await new_user.create()
     logger.info(f"Registered user: {new_user}")
-    return {"detail": "Registration successful"}
+
+    return Token(access_token=create_access_token(new_user.email))
 
 
 async def authenticate_user(email: str, password: str) -> User:

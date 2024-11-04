@@ -22,10 +22,17 @@ class TestRegistration:
         )
 
         assert response.status_code == status.HTTP_201_CREATED
-        assert response.json() == {"detail": "Registration successful"}
 
-        # Verify user was created in database
-        user = await User.get_by_email(email)
+        # Verify access token
+        data = response.json()
+        assert "access_token" in data
+        assert data["token_type"] == "bearer"
+
+        token = data["access_token"]
+        user = await get_current_user(
+            credentials=HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+        )
+        assert user.email == email
         assert user.auth_provider == AuthProvider.EMAIL
 
     async def test_register_existing_email(self, client: AsyncClient, test_user: User):
