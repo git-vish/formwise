@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 
 import Logo from "@/components/layout/logo";
 
-export const registerSchema = z
+const registerSchema = z
   .object({
     email: z
       .string()
