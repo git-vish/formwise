@@ -87,7 +87,7 @@ export default function Login() {
             Enter your email below to login to your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <form
             onSubmit={form.handleSubmit(handleLogin)}
             className="grid gap-4"
@@ -132,16 +132,17 @@ export default function Login() {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              Login
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              Login with Google
+              {form.formState.isSubmitting ? "Logging in..." : "Login"}
             </Button>
           </form>
+          {/* TODO: add google login */}
+          {/* <Button
+            variant="outline"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            Login with Google
+          </Button> */}
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="underline">

@@ -94,7 +94,7 @@ export default function Register() {
             Enter your details below to create your account
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <form
             onSubmit={form.handleSubmit(handleRegister)}
             className="grid gap-4"
@@ -144,16 +144,19 @@ export default function Register() {
               className="w-full"
               disabled={form.formState.isSubmitting}
             >
-              Create account
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              disabled={form.formState.isSubmitting}
-            >
-              Sign up with Google
+              {form.formState.isSubmitting
+                ? "Creating account..."
+                : "Create account"}
             </Button>
           </form>
+          {/* TODO: add google sign up */}
+          {/* <Button
+            variant="outline"
+            className="w-full"
+            disabled={form.formState.isSubmitting}
+          >
+            Sign up with Google
+          </Button> */}
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
             <Link href="/login" className="underline">
