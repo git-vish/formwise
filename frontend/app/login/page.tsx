@@ -68,7 +68,7 @@ export default function Login() {
 
       const data = await res.json();
       setToken(data.access_token);
-      router.push("/dashboard");
+      router.push("/");
     } catch (error) {
       setError((error as Error).message);
     }
