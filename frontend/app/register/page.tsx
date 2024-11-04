@@ -15,9 +15,12 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-// import { Checkbox } from "@/components/ui/checkbox";
 
 import Logo from "@/components/layout/logo";
+import { AUTH_URLS } from "@/config/api-urls";
+import { setToken } from "@/lib/auth";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const registerSchema = z
   .object({
@@ -30,12 +33,6 @@ const registerSchema = z
       .min(6, "Password must be at least 6 characters")
       .max(64, "Password must not exceed 64 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
-    // terms: z
-    //   .boolean()
-    //   .refine(
-    //     (val) => val === true,
-    //     "You must accept the terms and privacy policy"
-    //   ),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
@@ -45,19 +42,45 @@ const registerSchema = z
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
+  const router = useRouter();
+  const { toast } = useToast();
+
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    // defaultValues: {
-    //   terms: false,
-    // },
   });
 
-  const handleRegister = async (data: RegisterFormValues) => {
+  const handleRegister = async (fromData: RegisterFormValues) => {
     try {
-      // Here you would typically make an API call to your register endpoint
-      console.log("Form data:", data);
+      const res = await fetch(AUTH_URLS.REGISTER, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: fromData.email,
+          password: fromData.password,
+        }),
+      });
+
+      if (!res.ok) {
+        if (res.status === 409) {
+          throw new Error("An account with this email already exists.");
+        } else {
+          const error = await res.json();
+          throw new Error(
+            error.detail || "Something went wrong. Please try again later."
+          );
+        }
+      }
+
+      const data = await res.json();
+      setToken(data.access_token);
+      router.push("/");
     } catch (error) {
-      console.error("Registration error:", error);
+      toast({
+        title: (error as Error).message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -116,24 +139,6 @@ export default function Register() {
                 </p>
               )}
             </div>
-            {/* <div className="flex items-center space-x-2">
-              <Checkbox id="terms" {...form.register("terms")} />
-              <Label htmlFor="terms" className="text-sm">
-                I accept the{" "}
-                <Link href="#" className="underline">
-                  terms
-                </Link>{" "}
-                and{" "}
-                <Link href="#" className="underline">
-                  privacy policy
-                </Link>
-              </Label>
-            </div>
-            {form.formState.errors.terms && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.terms.message}
-              </p>
-            )} */}
             <Button
               type="submit"
               className="w-full"
