@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { ThemeToggle } from "../theme/theme-toggle";
 import Logo from "./logo";
 
 export default function Header() {
@@ -16,8 +15,6 @@ export default function Header() {
           <Button className="ml-2">
             <Link href="/register">Sign Up</Link>
           </Button>
-          {/* TODO: remove mode toggle */}
-          {process.env.NODE_ENV === "development" && <ThemeToggle />}
         </div>
       </nav>
     </header>
