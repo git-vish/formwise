@@ -21,6 +21,7 @@ import { AUTH_URLS } from "@/config/api-urls";
 import { setToken } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
+import { Icons } from "@/components/icons";
 
 const registerSchema = z
   .object({
@@ -75,7 +76,7 @@ export default function Register() {
 
       const data = await res.json();
       setToken(data.access_token);
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       toast({
         title: (error as Error).message,
@@ -149,14 +150,14 @@ export default function Register() {
                 : "Create account"}
             </Button>
           </form>
-          {/* TODO: add google sign up */}
-          {/* <Button
+          <Button
             variant="outline"
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            Sign up with Google
-          </Button> */}
+            <Icons.google className="h-5 w-5" />
+            <span>Sign up with Google</span>
+          </Button>
           <div className="mt-4 text-center text-sm">
             Already have an account?{" "}
             <Link href="/login" className="underline">

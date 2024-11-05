@@ -21,6 +21,7 @@ import { AUTH_URLS } from "@/config/api-urls";
 import { useRouter } from "next/navigation";
 import { setToken } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import { Icons } from "@/components/icons";
 
 const loginSchema = z.object({
   email: z
@@ -68,7 +69,7 @@ export default function Login() {
 
       const data = await res.json();
       setToken(data.access_token);
-      router.push("/");
+      router.push("/dashboard");
     } catch (error) {
       toast({
         title: (error as Error).message,
@@ -135,14 +136,14 @@ export default function Login() {
               {form.formState.isSubmitting ? "Logging in..." : "Login"}
             </Button>
           </form>
-          {/* TODO: add google login */}
-          {/* <Button
+          <Button
             variant="outline"
             className="w-full"
             disabled={form.formState.isSubmitting}
           >
-            Login with Google
-          </Button> */}
+            <Icons.google className="h-5 w-5" />
+            <span>Login with Google</span>
+          </Button>
           <div className="mt-4 text-center text-sm">
             Don&apos;t have an account?{" "}
             <Link href="/register" className="underline">
