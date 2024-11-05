@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXP: int = 60  # 1 hour
 
+    # *** Google OAuth settings ***
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+
     @property
     def allowed_origins(self) -> list[str]:
         """Returns a list of allowed origins."""

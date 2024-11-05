@@ -6,6 +6,7 @@ from fastapi.responses import JSONResponse
 
 from src.exceptions import (
     AuthenticationError,
+    BadRequestError,
     EntityAlreadyExistsError,
     EntityNotFoundError,
     FormwiseError,
@@ -43,6 +44,10 @@ EXCEPTION_HANDLERS = {
     AuthenticationError: {
         "status_code": status.HTTP_401_UNAUTHORIZED,
         "message": "Authentication failed.",
+    },
+    BadRequestError: {
+        "status_code": status.HTTP_400_BAD_REQUEST,
+        "message": "Invalid request.",
     },
 }
 
