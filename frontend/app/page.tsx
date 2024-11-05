@@ -1,53 +1,16 @@
-"use client";
-
-import HomePage from "@/components/home-page";
-import Console from "@/components/console";
-import { useEffect, useState, useCallback } from "react";
-import { isTokenValid } from "@/lib/auth";
+import Footer from "@/components/layout/footer";
+import Header from "@/components/layout/header";
+import Logo from "@/components/layout/logo";
 
 export default function Home() {
-  const [authState, setAuthState] = useState<
-    "checking" | "authenticated" | "unauthenticated"
-  >("checking");
-
-  // Memoized authentication check function
-  const checkAuth = useCallback(() => {
-    const isValid = isTokenValid();
-    setAuthState(isValid ? "authenticated" : "unauthenticated");
-  }, []);
-
-  useEffect(() => {
-    // Initial authentication check
-    checkAuth();
-
-    // Event listeners for visibility and focus changes
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        checkAuth();
-      }
-    };
-
-    const handleFocus = () => {
-      checkAuth();
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
-
-    // Cleanup function
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
-    };
-  }, [checkAuth]);
-
-  if (authState === "checking") {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
-      </div>
-    );
-  }
-
-  return authState === "authenticated" ? <Console /> : <HomePage />;
+  return (
+    // TODO: check and update flex div and main
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-grow flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
+        <Logo />
+      </main>
+      <Footer />
+    </div>
+  );
 }
