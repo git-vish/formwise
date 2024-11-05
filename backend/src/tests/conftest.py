@@ -3,6 +3,7 @@ from unittest import mock
 
 import pytest
 from beanie import init_beanie
+from faker import Faker
 from httpx import ASGITransport, AsyncClient
 from motor.motor_asyncio import AsyncIOMotorClient
 
@@ -13,7 +14,9 @@ from src.models.user import AuthProvider, User
 from src.tests.data import TEST_USER_DATA
 from src.utils.security import create_access_token, get_password_hash
 
-TEST_DATABASE_NAME = "formwise_test"
+fake = Faker()
+
+TEST_DATABASE_NAME = f"formwise_{fake.word()}"
 
 
 @pytest.fixture(scope="session")
