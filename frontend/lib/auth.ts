@@ -57,11 +57,3 @@ export function initiateGoogleAuth({ returnUrl }: GoogleAuthOptions) {
   url.searchParams.set("return_url", returnUrl);
   window.location.href = url.toString();
 }
-
-export function handleAuthCallback(token: string | null) {
-  if (token) {
-    setToken(token);
-    return true;
-  }
-  return false;
-}
