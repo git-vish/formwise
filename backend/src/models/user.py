@@ -52,8 +52,8 @@ class User(Document):
 class UserBase(BaseModel):
     """Base model for user requests and responses."""
 
-    first_name: str = Field(..., min_length=1, max_length=50)
-    last_name: str = Field(..., min_length=1, max_length=50)
+    first_name: str = Field(..., min_length=1, max_length=20)
+    last_name: str = Field(..., min_length=1, max_length=20)
 
 
 class UserLogin(BaseModel):
