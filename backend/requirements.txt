@@ -27,11 +27,17 @@ dnspython==2.7.0
     #   email-validator
     #   pymongo
 email-validator==2.2.0
-    # via fastapi
+    # via
+    #   fastapi
+    #   pydantic
 fastapi==0.115.4
-    # via formwise (pyproject.toml)
+    # via
+    #   formwise (pyproject.toml)
+    #   fastapi-sso
 fastapi-cli==0.0.5
     # via fastapi
+fastapi-sso==0.17.0
+    # via formwise (pyproject.toml)
 h11==0.14.0
     # via
     #   httpcore
@@ -41,7 +47,9 @@ httpcore==1.0.6
 httptools==0.6.4
     # via uvicorn
 httpx==0.27.2
-    # via fastapi
+    # via
+    #   fastapi
+    #   fastapi-sso
 idna==3.10
     # via
     #   anyio
@@ -59,6 +67,8 @@ mdurl==0.1.2
     # via markdown-it-py
 motor==3.6.0
     # via beanie
+oauthlib==3.2.2
+    # via fastapi-sso
 packaging==24.1
     # via asgi-correlation-id
 passlib==1.7.4
@@ -67,11 +77,12 @@ pydantic==2.9.2
     # via
     #   beanie
     #   fastapi
+    #   fastapi-sso
     #   lazy-model
     #   pydantic-settings
 pydantic-core==2.23.4
     # via pydantic
-pydantic-settings==2.6.0
+pydantic-settings==2.6.1
     # via formwise (pyproject.toml)
 pygments==2.18.0
     # via rich
@@ -83,11 +94,11 @@ python-dotenv==1.0.1
     # via
     #   pydantic-settings
     #   uvicorn
-python-multipart==0.0.16
+python-multipart==0.0.17
     # via fastapi
 pyyaml==6.0.2
     # via uvicorn
-rich==13.9.3
+rich==13.9.4
     # via typer
 shellingham==1.5.4
     # via typer

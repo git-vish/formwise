@@ -3,6 +3,7 @@ __all__ = [
     "EntityNotFoundError",
     "EntityAlreadyExistsError",
     "AuthenticationError",
+    "BadRequestError",
 ]
 
 
@@ -24,3 +25,7 @@ class EntityAlreadyExistsError(FormwiseError):
 
 class AuthenticationError(FormwiseError):
     """Raised when authentication fails."""
+
+
+class BadRequestError(FormwiseError):
+    """Raised when a bad request is made."""
