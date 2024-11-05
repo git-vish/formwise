@@ -25,6 +25,14 @@ import { Icons } from "@/components/icons";
 
 const registerSchema = z
   .object({
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .max(20, "Max 20 characters"),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .max(20, "Max 20 characters"),
     email: z
       .string()
       .email("Please enter a valid email address")
@@ -59,6 +67,8 @@ export default function Register() {
         },
         body: JSON.stringify({
           email: fromData.email,
+          first_name: fromData.firstName,
+          last_name: fromData.lastName,
           password: fromData.password,
         }),
       });
@@ -100,6 +110,34 @@ export default function Register() {
             onSubmit={form.handleSubmit(handleRegister)}
             className="grid gap-4"
           >
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="firstName">First name</Label>
+                <Input
+                  id="firstName"
+                  placeholder="Vishwajeet"
+                  {...form.register("firstName")}
+                />
+                {form.formState.errors.firstName && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.firstName.message}
+                  </p>
+                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="lastName">Last name</Label>
+                <Input
+                  id="lastName"
+                  placeholder="Ghatage"
+                  {...form.register("lastName")}
+                />
+                {form.formState.errors.lastName && (
+                  <p className="text-sm text-destructive">
+                    {form.formState.errors.lastName.message}
+                  </p>
+                )}
+              </div>
+            </div>
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input

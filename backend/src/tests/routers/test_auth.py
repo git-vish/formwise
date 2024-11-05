@@ -5,20 +5,30 @@ from fastapi.security import HTTPAuthorizationCredentials
 from httpx import AsyncClient
 
 from src.models.user import AuthProvider, User
-from src.tests.data import TEST_USER_PASSWORD
+from src.tests.data import TEST_USER_DATA
 from src.utils.security import get_current_user
 
 fake = Faker()
+BASE_URL = "/api/v1/auth"
 
 
 @pytest.mark.anyio
 class TestRegistration:
+    URL = f"{BASE_URL}/register"
+
     async def test_register_new_user(self, client: AsyncClient):
         """Tests successful user registration."""
         email = fake.email()
+        first_name = fake.first_name()
+        last_name = fake.last_name()
         response = await client.post(
-            "/api/v1/auth/register",
-            json={"email": email, "password": fake.password()},
+            self.URL,
+            json={
+                "email": email,
+                "first_name": first_name,
+                "last_name": last_name,
+                "password": fake.password(),
+            },
         )
 
         assert response.status_code == status.HTTP_201_CREATED
@@ -33,13 +43,20 @@ class TestRegistration:
             credentials=HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
         )
         assert user.email == email
+        assert user.first_name == first_name
+        assert user.last_name == last_name
         assert user.auth_provider == AuthProvider.EMAIL
 
     async def test_register_existing_email(self, client: AsyncClient, test_user: User):
         """Tests registration failure with existing email."""
         response = await client.post(
-            "/api/v1/auth/register",
-            json={"email": test_user.email, "password": fake.password()},
+            self.URL,
+            json={
+                "email": test_user.email,
+                "first_name": fake.first_name(),
+                "last_name": fake.last_name(),
+                "password": fake.password(),
+            },
         )
         assert response.status_code == status.HTTP_409_CONFLICT
 
@@ -50,8 +67,13 @@ class TestRegistration:
     async def test_register_invalid_email(self, client: AsyncClient, email):
         """Tests registration failure with invalid email."""
         response = await client.post(
-            "/api/v1/auth/register",
-            json={"email": email, "password": fake.password()},
+            self.URL,
+            json={
+                "email": email,
+                "first_name": fake.first_name(),
+                "last_name": fake.last_name(),
+                "password": fake.password(),
+            },
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
@@ -62,19 +84,45 @@ class TestRegistration:
     async def test_register_invalid_password(self, client: AsyncClient, password):
         """Tests registration failure with invalid password."""
         response = await client.post(
-            "/api/v1/auth/register",
-            json={"email": fake.email(), "password": password},
+            self.URL,
+            json={
+                "email": fake.email(),
+                "first_name": fake.first_name(),
+                "last_name": fake.last_name(),
+                "password": password,
+            },
+        )
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+    @pytest.mark.parametrize(
+        "first_name, last_name",
+        [("a" * 256, "b"), ("a", "b" * 256), ("", ""), (None, None)],
+    )
+    async def test_register_invalid_fields(
+        self, client: AsyncClient, first_name: str, last_name: str
+    ):
+        """Tests registration failure with invalid fields."""
+        response = await client.post(
+            self.URL,
+            json={
+                "email": fake.email(),
+                "first_name": first_name,
+                "last_name": last_name,
+                "password": fake.password(),
+            },
         )
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
 
 @pytest.mark.anyio
 class TestLogin:
+    URL = f"{BASE_URL}/login"
+
     async def test_login_success(self, client: AsyncClient, test_user: User):
         """Tests successful user login."""
         response = await client.post(
-            "/api/v1/auth/login",
-            json={"email": test_user.email, "password": TEST_USER_PASSWORD},
+            self.URL,
+            json={"email": test_user.email, "password": TEST_USER_DATA["password"]},
         )
         assert response.status_code == status.HTTP_200_OK
 
@@ -92,7 +140,7 @@ class TestLogin:
     async def test_login_wrong_password(self, client: AsyncClient, test_user: User):
         """Tests login failure with wrong password."""
         response = await client.post(
-            "/api/v1/auth/login",
+            self.URL,
             json={"email": test_user.email, "password": "wrong_password"},
         )
         assert response.status_code == status.HTTP_401_UNAUTHORIZED
@@ -100,7 +148,7 @@ class TestLogin:
     async def test_login_nonexistent_user(self, client: AsyncClient):
         """Tests login failure for non-existent user."""
         response = await client.post(
-            "/api/v1/auth/login",
+            self.URL,
             json={"email": fake.email(), "password": fake.password()},
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND

@@ -4,14 +4,18 @@ from httpx import AsyncClient
 
 from src.models.user import User
 
+BASE_URL = "/api/v1/users"
+
 
 @pytest.mark.anyio
 class TestUserInfo:
+    URL = f"{BASE_URL}/me"
+
     async def test_get_me_success(
         self, client: AsyncClient, test_user: User, auth_header: dict[str, str]
     ):
         """Tests that authenticated user info is retrieved correctly."""
-        response = await client.get("/api/v1/users/me", headers=auth_header)
+        response = await client.get(self.URL, headers=auth_header)
         assert response.status_code == status.HTTP_200_OK
 
         data = response.json()
@@ -20,5 +24,5 @@ class TestUserInfo:
 
     async def test_get_me_unauthorized(self, client: AsyncClient):
         """Tests unauthorized access to user info."""
-        response = await client.get("/api/v1/users/me")
+        response = await client.get(self.URL)
         assert response.status_code == status.HTTP_403_FORBIDDEN

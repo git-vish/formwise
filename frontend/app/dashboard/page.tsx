@@ -40,7 +40,9 @@ export default function Dashboard() {
     <div className="flex flex-col items-center justify-center h-screen space-y-4">
       <Logo />
       <h1 className="text-2xl font-bold text-center">Welcome to Dashboard</h1>
-      <h1 className="text-xl">{user?.email}</h1>
+      <h1 className="text-xl">
+        {user?.first_name} {user?.last_name}
+      </h1>
       <Button onClick={handleLogout} variant="destructive">
         Logout
       </Button>

@@ -8,7 +8,7 @@ from src.exceptions import (
     EntityNotFoundError,
 )
 from src.models.auth import Token
-from src.models.user import AuthProvider, User, UserAuth
+from src.models.user import AuthProvider, User, UserCreate, UserLogin
 from src.utils.security import create_access_token, get_password_hash, verify_password
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
-async def register(user: UserAuth):
+async def register(user: UserCreate):
     """Registers a new user with an email and password.
     Returns a success message if the user is created.
     """
@@ -29,6 +29,8 @@ async def register(user: UserAuth):
     hashed_password = get_password_hash(user.password.get_secret_value())
     new_user = User(
         email=user.email,
+        first_name=user.first_name,
+        last_name=user.last_name,
         hashed_password=hashed_password,
         auth_provider=AuthProvider.EMAIL,
     )
@@ -68,7 +70,7 @@ async def authenticate_user(email: str, password: str) -> User:
     response_model=Token,
     status_code=status.HTTP_200_OK,
 )
-async def login(user: UserAuth):
+async def login(user: UserLogin):
     """Logs in an existing user and returns a JWT access token
     if the login is successful.
     """

@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 
 class Token(BaseModel):
-    """Model for access token response."""
+    """Response model for access token."""
 
     access_token: str
     token_type: str = "bearer"
