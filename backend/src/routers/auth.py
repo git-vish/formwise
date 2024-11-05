@@ -72,7 +72,7 @@ async def authenticate_user(email: str, password: str) -> User:
         raise EntityNotFoundError("User not found.")
 
     if user.auth_provider == AuthProvider.GOOGLE:
-        raise BadRequestError("Please login with Google.")
+        raise BadRequestError("Please sign in with Google.")
 
     if not verify_password(password, user.hashed_password):
         raise AuthenticationError("Invalid credentials.")

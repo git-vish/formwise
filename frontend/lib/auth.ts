@@ -48,12 +48,11 @@ export const isTokenValid = () => {
   }
 };
 
-interface GoogleAuthOptions {
-  returnUrl: string;
-}
-
-export function initiateGoogleAuth({ returnUrl }: GoogleAuthOptions) {
+export function initiateGoogleAuth() {
   const url = new URL(AUTH_URLS.GOOGLE);
-  url.searchParams.set("return_url", returnUrl);
+  url.searchParams.set(
+    "return_url",
+    `${window.location.origin}/google-callback`
+  );
   window.location.href = url.toString();
 }
