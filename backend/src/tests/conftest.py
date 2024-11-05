@@ -10,7 +10,7 @@ from src.config import settings
 from src.main import app
 from src.models import DOCUMENT_MODELS
 from src.models.user import AuthProvider, User
-from src.tests.data import TEST_USER_EMAIL, TEST_USER_PASSWORD
+from src.tests.data import TEST_USER_DATA
 from src.utils.security import create_access_token, get_password_hash
 
 TEST_DATABASE_NAME = "formwise_test"
@@ -45,8 +45,10 @@ async def client() -> AsyncClient:
 async def test_user(client) -> User:
     """Creates a test user."""
     user = User(
-        email=TEST_USER_EMAIL,
-        hashed_password=get_password_hash(TEST_USER_PASSWORD),
+        email=TEST_USER_DATA["email"],
+        first_name=TEST_USER_DATA["first_name"],
+        last_name=TEST_USER_DATA["last_name"],
+        hashed_password=get_password_hash(TEST_USER_DATA["password"]),
         auth_provider=AuthProvider.EMAIL,
     )
     await user.create()

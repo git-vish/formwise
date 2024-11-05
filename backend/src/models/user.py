@@ -22,8 +22,8 @@ class User(Document):
 
     id: Annotated[str, Field(default_factory=lambda: uuid4().hex)]
     email: Annotated[EmailStr, Indexed(unique=True)]
-    first_name: str | None = None
-    last_name: str | None = None
+    first_name: str
+    last_name: str
     picture: HttpUrl | None = None
     hashed_password: str | None = None
     auth_provider: AuthProvider
@@ -49,26 +49,27 @@ class User(Document):
         return self.__repr__()
 
 
-class UserAuth(BaseModel):
-    """Model for user creation and login request."""
+class UserBase(BaseModel):
+    """Base model for user requests and responses."""
+
+    first_name: str = Field(..., min_length=1, max_length=50)
+    last_name: str = Field(..., min_length=1, max_length=50)
+
+
+class UserLogin(BaseModel):
+    """Request model for user login."""
 
     email: EmailStr
     password: SecretStr = Field(..., min_length=6, max_length=64)
 
 
-class UserInfo(BaseModel):
-    """Model for user info response."""
+class UserCreate(UserBase, UserLogin):
+    """Request model for user registration."""
+
+
+class UserProfile(UserBase):
+    """Response model for user profile."""
 
     email: EmailStr
-    first_name: str | None = None
-    last_name: str | None = None
     picture: HttpUrl | None = None
     auth_provider: AuthProvider
-
-
-class UserUpdate(BaseModel):
-    """Model for user update request."""
-
-    first_name: str = Field(None, max_length=50)
-    last_name: str = Field(None, max_length=50)
-    password: SecretStr = Field(None, min_length=6, max_length=64)
