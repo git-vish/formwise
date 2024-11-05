@@ -7,6 +7,7 @@ const BASE_API_URL = `${API_BASE_URL}/${API_VERSION}`;
 export const AUTH_URLS = {
   LOGIN: `${BASE_API_URL}/auth/login`,
   REGISTER: `${BASE_API_URL}/auth/register`,
+  GOOGLE: `${BASE_API_URL}/auth/google`,
 };
 
 // User Endpoints

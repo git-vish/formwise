@@ -1,4 +1,5 @@
 import { jwtDecode } from "jwt-decode";
+import { AUTH_URLS } from "@/config/api-urls";
 
 export const COOKIE_NAME = "formwise_token";
 
@@ -46,3 +47,21 @@ export const isTokenValid = () => {
     return false;
   }
 };
+
+interface GoogleAuthOptions {
+  returnUrl: string;
+}
+
+export function initiateGoogleAuth({ returnUrl }: GoogleAuthOptions) {
+  const url = new URL(AUTH_URLS.GOOGLE);
+  url.searchParams.set("return_url", returnUrl);
+  window.location.href = url.toString();
+}
+
+export function handleAuthCallback(token: string | null) {
+  if (token) {
+    setToken(token);
+    return true;
+  }
+  return false;
+}
