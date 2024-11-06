@@ -1,6 +1,11 @@
 name: Backend CI
 
 on:
+  push:
+    branches: ["main"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-ci.yml"
   pull_request:
     branches: ["main"]
     paths:
@@ -12,30 +17,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  changes:
-    name: Check for Backend changes
+  backend-ci:
+    name: Backend CI
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-
-    outputs:
-      backend: ${{ steps.filter.outputs.backend }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            backend:
-              - "backend/**"
-
-  quality:
-    name: Quality Checks
-    runs-on: ubuntu-latest
-    needs: changes
-    if: ${{ needs.changes.outputs.backend == 'true' }}
 
     defaults:
       run:
