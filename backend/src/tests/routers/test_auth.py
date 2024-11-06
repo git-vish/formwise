@@ -1,4 +1,5 @@
 from unittest import mock
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 from faker import Faker
@@ -6,6 +7,7 @@ from fastapi import status
 from fastapi.datastructures import URL
 from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
+from fastapi_sso import OpenID
 from httpx import AsyncClient
 from pydantic_core import Url
 
@@ -200,3 +202,117 @@ class TestGoogleAuth:
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert mock_google_sso.get_login_redirect.call_count == 0
+
+
+@pytest.mark.anyio
+@mock.patch("src.routers.auth.google_sso")
+class TestGoogleAuthCallback:
+    URL = f"{BASE_URL}/google/callback"
+    state = "https://example.com/callback"
+
+    @staticmethod
+    def mock_sso_user(user: User | None = None) -> OpenID:
+        """Mocks user data returned by Google SSO."""
+        if user:
+            return OpenID(
+                id=fake.uuid4(),
+                email=user.email,
+            )
+        return OpenID(
+            id=fake.uuid4(),
+            email=fake.email(),
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            picture=fake.image_url(),
+        )
+
+    async def test_google_callback_new_user_success(
+        self, mock_google_sso, client: AsyncClient
+    ):
+        """Tests successful Google callback for new user."""
+        mock_sso_user = self.mock_sso_user()
+        mock_google_sso.verify_and_process = mock.AsyncMock(return_value=mock_sso_user)
+
+        response = await client.get(f"{self.URL}?code=fake_code&state={self.state}")
+
+        assert response.status_code == status.HTTP_303_SEE_OTHER
+
+        # Verify access token
+        redirect_url = response.headers["Location"]
+        token = parse_qs(urlparse(redirect_url).query)["token"][0]
+
+        user = await get_current_user(
+            credentials=HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+        )
+        assert user.is_active
+        assert user.email == mock_sso_user.email
+        assert user.first_name == mock_sso_user.first_name
+        assert user.last_name == mock_sso_user.last_name
+        assert user.picture == Url(mock_sso_user.picture)
+        assert user.auth_provider == AuthProvider.GOOGLE
+
+    async def test_google_callback_email_user_success(
+        self, mock_google_sso, client: AsyncClient, test_user: User
+    ):
+        """Tests successful Google callback for existing user."""
+        mock_sso_user = self.mock_sso_user(test_user)
+        mock_google_sso.verify_and_process = mock.AsyncMock(return_value=mock_sso_user)
+
+        response = await client.get(f"{self.URL}?code=fake_code&state={self.state}")
+
+        assert response.status_code == status.HTTP_303_SEE_OTHER
+
+        # Verify access token
+        redirect_url = response.headers["Location"]
+        token = parse_qs(urlparse(redirect_url).query)["token"][0]
+
+        user = await get_current_user(
+            credentials=HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+        )
+        assert user.email == mock_sso_user.email
+        assert user.auth_provider == AuthProvider.EMAIL
+
+    async def test_google_callback_google_user_success(
+        self, mock_google_sso, client: AsyncClient, test_google_user: User
+    ):
+        """Tests successful Google callback for existing Google user."""
+        mock_sso_user = self.mock_sso_user(test_google_user)
+        mock_google_sso.verify_and_process = mock.AsyncMock(return_value=mock_sso_user)
+
+        response = await client.get(f"{self.URL}?code=fake_code&state={self.state}")
+
+        assert response.status_code == status.HTTP_303_SEE_OTHER
+
+        # Verify access token
+        redirect_url = response.headers["Location"]
+        token = parse_qs(urlparse(redirect_url).query)["token"][0]
+
+        user = await get_current_user(
+            credentials=HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+        )
+        assert user.email == mock_sso_user.email
+        assert user.auth_provider == AuthProvider.GOOGLE
+
+    async def test_google_callback_verification_failure(
+        self, mock_google_sso, client: AsyncClient
+    ):
+        """Tests Google callback error due to verification failure."""
+        mock_google_sso.verify_and_process = mock.AsyncMock(
+            side_effect=Exception("Verification failed")
+        )
+
+        response = await client.get(f"{self.URL}?code=fake_code&state={self.state}")
+
+        assert response.status_code == status.HTTP_303_SEE_OTHER
+        assert response.headers["Location"].startswith(f"{self.state}?error=")
+
+    async def test_google_callback_missing_state(
+        self, mock_google_sso, client: AsyncClient
+    ):
+        """Tests Google callback failure with missing state."""
+        mock_google_sso.verify_and_process = mock.AsyncMock()
+
+        response = await client.get(f"{self.URL}?code=fake_code")
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert mock_google_sso.verify_and_process.call_count == 0
