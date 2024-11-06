@@ -94,7 +94,7 @@ async def login(user: UserLogin):
     return Token(access_token=create_access_token(user.email))
 
 
-@router.get("/google", status_code=status.HTTP_303_SEE_OTHER)
+@router.get("/google", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 async def google_auth(request: Request, return_url: AnyHttpUrl):
     """Redirects to Google OAuth2 authorization page."""
     logger.info(f"Google authentication requested from: {return_url.path}")

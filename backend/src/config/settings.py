@@ -22,7 +22,7 @@ class Settings(BaseSettings):
     MONGO_DATABASE_NAME: str = "formwise"
 
     # *** JWT settings ***
-    JWT_SECRET_KEY: str
+    JWT_SECRET_KEY: str = "secret"
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXP: int = 60  # 1 hour
 

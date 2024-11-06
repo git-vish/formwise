@@ -58,6 +58,21 @@ async def test_user(client) -> User:
     return user
 
 
+@pytest.fixture()
+async def test_google_user(client) -> User:
+    """Creates a test user with Google auth provider."""
+    user = User(
+        email=TEST_USER_DATA["email"],
+        first_name=TEST_USER_DATA["first_name"],
+        last_name=TEST_USER_DATA["last_name"],
+        picture=fake.image_url(),
+        is_active=True,
+        auth_provider=AuthProvider.GOOGLE,
+    )
+    await user.create()
+    return user
+
+
 @pytest.fixture
 async def valid_token(test_user: User) -> str:
     """Creates a valid JWT token."""

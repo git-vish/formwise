@@ -1,8 +1,13 @@
+from unittest import mock
+
 import pytest
 from faker import Faker
 from fastapi import status
+from fastapi.datastructures import URL
+from fastapi.responses import RedirectResponse
 from fastapi.security import HTTPAuthorizationCredentials
 from httpx import AsyncClient
+from pydantic_core import Url
 
 from src.models.user import AuthProvider, User
 from src.tests.data import TEST_USER_DATA
@@ -152,3 +157,46 @@ class TestLogin:
             json={"email": fake.email(), "password": fake.password()},
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    async def test_login_google_user(self, client: AsyncClient, test_google_user: User):
+        """Tests login failure for Google user."""
+        response = await client.post(
+            self.URL,
+            json={"email": test_google_user.email, "password": fake.password()},
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.anyio
+@mock.patch("src.routers.auth.google_sso")
+class TestGoogleAuth:
+    URL = f"{BASE_URL}/google"
+    CALLBACK_URL = f"{BASE_URL}/google/callback"
+
+    async def test_google_auth_redirect(self, mock_google_sso, client: AsyncClient):
+        """Tests successful Google auth redirect."""
+        mock_google_sso.get_login_redirect = mock.AsyncMock(
+            return_value=RedirectResponse("https://google.com/auth")
+        )
+        return_url = Url("https://example.com/callback")
+
+        response = await client.get(f"{self.URL}?return_url={return_url}")
+
+        assert response.status_code == status.HTTP_307_TEMPORARY_REDIRECT
+        assert response.headers["Location"] == "https://google.com/auth"
+
+        mock_google_sso.get_login_redirect.assert_called_once_with(
+            redirect_uri=URL(f"{client.base_url}{self.CALLBACK_URL}"),
+            state=return_url,
+        )
+
+    async def test_google_auth_missing_return_url(
+        self, mock_google_sso, client: AsyncClient
+    ):
+        """Tests Google auth redirect failure with missing return URL."""
+        mock_google_sso.get_login_redirect = mock.AsyncMock()
+
+        response = await client.get(f"{self.URL}")
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert mock_google_sso.get_login_redirect.call_count == 0

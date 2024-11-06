@@ -15,13 +15,7 @@ function CallbackContent() {
     const token = searchParams.get("token");
     const error = searchParams.get("error");
 
-    if (error) {
-      setError("Authentication failed. Please try again.");
-      setTimeout(() => router.push("/login"), 3000);
-      return;
-    }
-
-    if (!token) {
+    if (error || !token) {
       setError("Authentication failed. Please try again.");
       setTimeout(() => router.push("/login"), 3000);
       return;
