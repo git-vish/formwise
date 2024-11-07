@@ -15,6 +15,8 @@ import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { RegisterFormValues, registerSchema } from "@/lib/schemas";
 import { AUTH_URLS } from "@/config/api-urls";
 import { setToken, initiateGoogleAuth } from "@/lib/auth";
+import { fetcher } from "@/lib/utils";
+import { Token } from "@/lib/types";
 
 export default function RegisterForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -26,34 +28,29 @@ export default function RegisterForm() {
   });
 
   const handleRegister = async (formData: RegisterFormValues) => {
-    try {
-      const res = await fetch(AUTH_URLS.REGISTER, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          password: formData.password,
-        }),
-      });
+    const { status, data } = await fetcher<Token>({
+      endpoint: AUTH_URLS.REGISTER,
+      method: "POST",
+      payload: {
+        email: formData.email,
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        password: formData.password,
+      },
+    });
 
-      if (!res.ok) {
-        if (res.status === 409) {
-          throw new Error("An account with this email already exists.");
-        }
-        const error = await res.json();
-        throw new Error(
-          error.detail || "Something went wrong. Please try again later."
-        );
-      }
-
-      const { access_token } = await res.json();
-      setToken(access_token);
+    if (status === 201 && data) {
+      setToken(data.access_token);
       router.push("/dashboard");
-    } catch (error) {
+    } else {
+      const errorMessages = {
+        409: "An account with this email already exists.",
+      };
+      const message =
+        errorMessages[status as keyof typeof errorMessages] ||
+        "Something went wrong. Please try again later.";
       toast({
-        title: (error as Error).message,
+        title: message,
         variant: "destructive",
       });
     }
