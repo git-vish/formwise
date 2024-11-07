@@ -1,31 +1,36 @@
 "use client";
 
+import Loader from "@/components/layout/loader";
 import Logo from "@/components/layout/logo";
 import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { USER_URLS } from "@/config/api-urls";
-import { getToken, removeToken } from "@/lib/auth";
+import { removeToken } from "@/lib/auth";
 import { User } from "@/lib/types";
+import { fetcher } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const res = await fetch(USER_URLS.ME, {
-          headers: {
-            Authorization: `Bearer ${getToken()}`,
-          },
-        });
+      setIsLoading(true);
+      const { status, data } = await fetcher<User>({
+        endpoint: USER_URLS.ME,
+        method: "GET",
+        authRequired: true,
+      });
 
-        if (!res.ok) throw new Error("Failed to fetch user");
-        const userData = await res.json();
-        setUser(userData);
-      } catch (err) {
-        console.error(err);
+      if (status === 200 && data) {
+        setUser(data);
+      } else {
+        setError("Failed to fetch user");
       }
+      setIsLoading(false);
     };
 
     fetchUser();
@@ -36,13 +41,23 @@ export default function Dashboard() {
     window.location.reload();
   };
 
+  if (isLoading) {
+    return <Loader />;
+  }
+
   return (
-    <div className="flex flex-col items-center justify-center h-screen space-y-4">
+    <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
       <Logo />
       <h1 className="text-2xl font-bold text-center">Welcome to Dashboard</h1>
-      <h1 className="text-xl">
-        {user?.first_name} {user?.last_name}
-      </h1>
+      {error ? (
+        <Alert variant="destructive" className="max-w-md mx-4">
+          <AlertDescription className="text-center">{error}</AlertDescription>
+        </Alert>
+      ) : (
+        <h1 className="text-xl">
+          {user?.first_name} {user?.last_name}
+        </h1>
+      )}
       <Button onClick={handleLogout} variant="destructive">
         Logout
       </Button>

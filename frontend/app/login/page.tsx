@@ -15,6 +15,8 @@ import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { LoginFormValues, loginSchema } from "@/lib/schemas";
 import { AUTH_URLS } from "@/config/api-urls";
 import { setToken, initiateGoogleAuth } from "@/lib/auth";
+import { fetcher } from "@/lib/utils";
+import { Token } from "@/lib/types";
 
 export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -26,32 +28,25 @@ export default function LoginPage() {
   });
 
   const handleLogin = async (formData: LoginFormValues) => {
-    try {
-      const res = await fetch(AUTH_URLS.LOGIN, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+    const { status, data } = await fetcher<Token>({
+      endpoint: AUTH_URLS.LOGIN,
+      method: "POST",
+      payload: formData,
+    });
 
-      if (!res.ok) {
-        const errorMessages = {
-          404: "Account not found. Please check your email.",
-          401: "Incorrect password. Please try again.",
-        };
-        const error = await res.json();
-        throw new Error(
-          errorMessages[res.status as keyof typeof errorMessages] ||
-            error.detail ||
-            "Something went wrong. Please try again later."
-        );
-      }
-
-      const { access_token } = await res.json();
-      setToken(access_token);
+    if (status === 200 && data) {
+      setToken(data.access_token);
       router.push("/dashboard");
-    } catch (error) {
+    } else {
+      const errorMessages = {
+        404: "Account not found. Please check your email.",
+        401: "Incorrect password. Please try again.",
+      };
+      const message =
+        errorMessages[status as keyof typeof errorMessages] ||
+        "Something went wrong. Please try again later.";
       toast({
-        title: (error as Error).message,
+        title: message,
         variant: "destructive",
       });
     }
