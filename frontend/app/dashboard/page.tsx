@@ -19,18 +19,18 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchUser = async () => {
       setIsLoading(true);
-      const { status, data } = await fetcher<User>({
-        endpoint: USER_URLS.ME,
-        method: "GET",
-        authRequired: true,
-      });
-
-      if (status === 200 && data) {
-        setUser(data);
-      } else {
-        setError("Failed to fetch user");
+      try {
+        const response = await fetcher<User>({
+          endpoint: USER_URLS.ME,
+          method: "GET",
+          authRequired: true,
+        });
+        setUser(response);
+      } catch (error) {
+        setError((error as Error).message);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     fetchUser();
