@@ -28,23 +28,20 @@ export default function LoginPage() {
   });
 
   const handleLogin = async (formData: LoginFormValues) => {
-    const { status, data } = await fetcher<Token>({
-      endpoint: AUTH_URLS.LOGIN,
-      method: "POST",
-      payload: formData,
-    });
-
-    if (status === 200 && data) {
-      setToken(data.access_token);
+    try {
+      const response = await fetcher<Token>({
+        endpoint: AUTH_URLS.LOGIN,
+        method: "POST",
+        payload: formData,
+        errorMessages: {
+          404: "Account not found. Please check your email.",
+          401: "Incorrect password. Please try again.",
+        },
+      });
+      setToken(response.access_token);
       router.push("/dashboard");
-    } else {
-      const errorMessages = {
-        404: "Account not found. Please check your email.",
-        401: "Incorrect password. Please try again.",
-      };
-      const message =
-        errorMessages[status as keyof typeof errorMessages] ||
-        "Something went wrong. Please try again later.";
+    } catch (error) {
+      const message = (error as Error).message;
       toast({
         title: message,
         variant: "destructive",

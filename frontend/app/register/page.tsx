@@ -28,29 +28,25 @@ export default function RegisterForm() {
   });
 
   const handleRegister = async (formData: RegisterFormValues) => {
-    const { status, data } = await fetcher<Token>({
-      endpoint: AUTH_URLS.REGISTER,
-      method: "POST",
-      payload: {
-        email: formData.email,
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        password: formData.password,
-      },
-    });
-
-    if (status === 201 && data) {
-      setToken(data.access_token);
+    try {
+      const response = await fetcher<Token>({
+        endpoint: AUTH_URLS.REGISTER,
+        method: "POST",
+        payload: {
+          email: formData.email,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          password: formData.password,
+        },
+        errorMessages: {
+          409: "An account with this email already exists.",
+        },
+      });
+      setToken(response.access_token);
       router.push("/dashboard");
-    } else {
-      const errorMessages = {
-        409: "An account with this email already exists.",
-      };
-      const message =
-        errorMessages[status as keyof typeof errorMessages] ||
-        "Something went wrong. Please try again later.";
+    } catch (error) {
       toast({
-        title: message,
+        title: (error as Error).message,
         variant: "destructive",
       });
     }
