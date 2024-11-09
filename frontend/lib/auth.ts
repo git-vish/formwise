@@ -1,9 +1,12 @@
+"use client";
+
 import { jwtDecode } from "jwt-decode";
+import { COOKIE_NAME } from "./cookies";
 import { AUTH_URLS } from "@/config/api-urls";
 
-export const COOKIE_NAME = "formwise_token";
-
 export const setToken = (token: string) => {
+  if (typeof window === "undefined") return;
+
   const secure = window.location.protocol === "https:";
   const sameSite = secure ? "Strict" : "Lax";
 
@@ -23,25 +26,26 @@ export const setToken = (token: string) => {
 };
 
 export const getToken = (): string | null => {
-  const cookies = document.cookie.split(";");
-  const tokenCookie = cookies.find((cookie) =>
-    cookie.trim().startsWith(`${COOKIE_NAME}=`)
+  if (typeof window === "undefined") return null;
+  return (
+    document.cookie
+      .split(";")
+      .find((c) => c.trim().startsWith(`${COOKIE_NAME}=`))
+      ?.split("=")[1] || null
   );
-  if (!tokenCookie) return null;
-
-  return tokenCookie.split("=")[1];
 };
 
 export const removeToken = () => {
+  if (typeof window === "undefined") return;
   document.cookie = `${COOKIE_NAME}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 };
 
-export const isTokenValid = () => {
-  const token = getToken();
-  if (!token) return false;
+export const isTokenValid = (token?: string | null): boolean => {
+  const tokenToCheck = token || getToken();
+  if (!tokenToCheck) return false;
 
   try {
-    const decoded = jwtDecode(token);
+    const decoded = jwtDecode(tokenToCheck);
     return decoded.exp ? decoded.exp * 1000 > Date.now() : false;
   } catch {
     return false;
@@ -49,6 +53,8 @@ export const isTokenValid = () => {
 };
 
 export function initiateGoogleAuth() {
+  if (typeof window === "undefined") return;
+
   const url = new URL(AUTH_URLS.GOOGLE);
   url.searchParams.set(
     "return_url",

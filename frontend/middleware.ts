@@ -1,6 +1,7 @@
+// middleware.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { COOKIE_NAME } from "./lib/auth";
+import { COOKIE_NAME } from "./lib/cookies";
 
 const routes = {
   guestOnly: ["/", "/login", "/register", "/forgot-password"],
@@ -8,7 +9,7 @@ const routes = {
 };
 
 export function middleware(request: NextRequest) {
-  const token = request.cookies.get(COOKIE_NAME)?.value || "";
+  const token = request.cookies.get(COOKIE_NAME)?.value;
   const { pathname } = request.nextUrl;
 
   if (token && routes.guestOnly.includes(pathname)) {
