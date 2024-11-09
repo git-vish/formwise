@@ -1,6 +1,6 @@
 import Footer from "@/components/layout/footer";
 import Header from "@/components/layout/header";
-import Logo from "@/components/layout/logo";
+import Logo from "@/components/logo";
 
 export default function Home() {
   return (

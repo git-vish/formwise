@@ -1,67 +1,91 @@
 "use client";
 
-import Loader from "@/components/layout/loader";
-import Logo from "@/components/layout/logo";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { useAuth } from "@/hooks/use-auth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { USER_URLS } from "@/config/api-urls";
-import { removeToken } from "@/lib/auth";
-import { User } from "@/lib/types";
-import { fetcher } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { User } from "@/types/auth";
+import { Card, CardHeader } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Skeleton } from "@/components/ui/skeleton";
+import Header from "@/components/layout/header";
+import Footer from "@/components/layout/footer";
 
-export default function Dashboard() {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetcher<User>({
-          endpoint: USER_URLS.ME,
-          method: "GET",
-          authRequired: true,
-        });
-        setUser(response);
-      } catch (error) {
-        setError((error as Error).message);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchUser();
-  }, []);
-
-  const handleLogout = () => {
-    removeToken();
-    window.location.reload();
-  };
-
-  if (isLoading) {
-    return <Loader />;
-  }
+export default function DashboardPage() {
+  const { user, isLoading, error } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
-      <Logo />
-      <h1 className="text-2xl font-bold text-center">Welcome to Dashboard</h1>
-      {error ? (
-        <Alert variant="destructive" className="max-w-md mx-4">
-          <AlertDescription className="text-center">{error}</AlertDescription>
-        </Alert>
-      ) : (
-        <h1 className="text-xl">
-          {user?.first_name} {user?.last_name}
-        </h1>
-      )}
-      <Button onClick={handleLogout} variant="destructive">
-        Logout
-      </Button>
-      <ThemeToggle />
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-1 container mx-auto px-4 py-8">
+        <div className="max-w-md mx-auto space-y-8">
+          <h1 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
+            Welcome to Dashboard
+          </h1>
+
+          {isLoading && <UserProfile.Skeleton />}
+
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error.message}</AlertDescription>
+            </Alert>
+          )}
+
+          {user && <UserProfile user={user} />}
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
+
+function UserProfile({ user }: { user: User }) {
+  const getInitials = (firstName: string, lastName: string) => {
+    return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader className="space-y-6">
+        <div className="flex flex-col items-center text-center">
+          <Avatar className="h-20 w-20 mb-4">
+            <AvatarImage
+              src={user.picture}
+              alt={`${user.first_name} ${user.last_name}`}
+              referrerPolicy="no-referrer"
+            />
+            <AvatarFallback className="text-xl">
+              {getInitials(user.first_name, user.last_name)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-semibold">
+              {user.first_name} {user.last_name}
+            </h2>
+            <p className="text-sm text-muted-foreground">{user.email}</p>
+            <p className="text-sm text-muted-foreground">
+              Auth Provider: {user.auth_provider}
+            </p>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
+
+function UserProfileSkeleton() {
+  return (
+    <Card className="w-full">
+      <CardHeader className="space-y-6">
+        <div className="flex flex-col items-center">
+          <Skeleton className="h-20 w-20 rounded-full mb-4" />
+          <div className="space-y-2 w-full max-w-[200px]">
+            <Skeleton className="h-8 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4 mx-auto" />
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
+  );
+}
+
+UserProfile.Skeleton = UserProfileSkeleton;
