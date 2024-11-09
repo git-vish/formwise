@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,45 +11,23 @@ import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { LoginFormValues, loginSchema } from "@/lib/schemas";
-import { AUTH_URLS } from "@/config/api-urls";
-import { setToken, initiateGoogleAuth } from "@/lib/auth";
-import { fetcher } from "@/lib/utils";
-import { Token } from "@/lib/types";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
+  const { login, signInWithGoogle } = useAuth();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
   const handleLogin = async (formData: LoginFormValues) => {
-    try {
-      const response = await fetcher<Token>({
-        endpoint: AUTH_URLS.LOGIN,
-        method: "POST",
-        payload: formData,
-        errorMessages: {
-          404: "Account not found. Please check your email.",
-          401: "Incorrect password. Please try again.",
-        },
-      });
-      setToken(response.access_token);
-      router.push("/dashboard");
-    } catch (error) {
-      const message = (error as Error).message;
-      toast({
-        title: message,
-        variant: "destructive",
-      });
-    }
+    await login(formData);
   };
 
   const handleGoogleLogin = () => {
     setGoogleLoading(true);
-    initiateGoogleAuth();
+    signInWithGoogle();
   };
 
   return (

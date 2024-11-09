@@ -13,6 +13,10 @@ export const authService = {
       endpoint: AUTH_URLS.LOGIN,
       method: "POST",
       payload: credentials,
+      errorMessages: {
+        404: "Account not found. Please check your email.",
+        401: "Incorrect password. Please try again.",
+      },
     });
   },
 
@@ -21,16 +25,17 @@ export const authService = {
       endpoint: AUTH_URLS.REGISTER,
       method: "POST",
       payload: credentials,
+      errorMessages: {
+        409: "An account with this email already exists.",
+      },
     });
   },
 
   async getCurrentUser(): Promise<User> {
-    console.log("Fetching current user...");
     const user = await fetcher<User>({
       endpoint: USER_URLS.ME,
       authRequired: true,
     });
-    console.log("Fetched current user:", user);
     return user;
   },
 };

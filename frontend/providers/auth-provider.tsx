@@ -22,6 +22,7 @@ import type {
   LoginCredentials,
   RegisterCredentials,
 } from "@/types/auth";
+import { useToast } from "@/hooks/use-toast";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -29,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isInitialized, setIsInitialized] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const token = getToken();
@@ -56,13 +58,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const { access_token: token } = await authService.login(credentials);
         setToken(token);
-        await queryClient.invalidateQueries({ queryKey: ["user"] });
+        await refreshUser();
         router.push("/dashboard");
       } catch (err) {
-        throw err instanceof Error ? err : new Error("Login failed");
+        toast({
+          title: (err as Error).message,
+          variant: "destructive",
+        });
       }
     },
-    [queryClient, router]
+    [refreshUser, router, toast]
   );
 
   const register = useCallback(
@@ -70,16 +75,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         const { access_token: token } = await authService.register(credentials);
         setToken(token);
-        await queryClient.invalidateQueries({ queryKey: ["user"] });
+        await refreshUser();
         router.push("/dashboard");
       } catch (err) {
-        throw err instanceof Error ? err : new Error("Registration failed");
+        toast({
+          title: (err as Error).message,
+          variant: "destructive",
+        });
       }
     },
-    [queryClient, router]
+    [refreshUser, router, toast]
   );
 
-  const loginWithGoogle = useCallback(() => {
+  const signInWithGoogle = useCallback(() => {
     initiateGoogleAuth();
   }, []);
 
@@ -108,7 +116,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
-    loginWithGoogle,
+    signInWithGoogle,
     refreshUser: async () => {
       await refreshUser();
     },

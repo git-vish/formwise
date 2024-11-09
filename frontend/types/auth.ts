@@ -31,6 +31,6 @@ export interface AuthContextType extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (credentials: RegisterCredentials) => Promise<void>;
   logout: () => void;
-  loginWithGoogle: () => void;
+  signInWithGoogle: () => void;
   refreshUser: () => Promise<void>;
 }

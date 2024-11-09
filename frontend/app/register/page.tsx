@@ -4,8 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,48 +11,28 @@ import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { RegisterFormValues, registerSchema } from "@/lib/schemas";
-import { AUTH_URLS } from "@/config/api-urls";
-import { setToken, initiateGoogleAuth } from "@/lib/auth";
-import { fetcher } from "@/lib/utils";
-import { Token } from "@/lib/types";
+import { useAuth } from "@/providers/auth-provider";
 
 export default function RegisterForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
-  const router = useRouter();
-  const { toast } = useToast();
+  const { register, signInWithGoogle } = useAuth();
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
   });
 
   const handleRegister = async (formData: RegisterFormValues) => {
-    try {
-      const response = await fetcher<Token>({
-        endpoint: AUTH_URLS.REGISTER,
-        method: "POST",
-        payload: {
-          email: formData.email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
-          password: formData.password,
-        },
-        errorMessages: {
-          409: "An account with this email already exists.",
-        },
-      });
-      setToken(response.access_token);
-      router.push("/dashboard");
-    } catch (error) {
-      toast({
-        title: (error as Error).message,
-        variant: "destructive",
-      });
-    }
+    register({
+      email: formData.email,
+      first_name: formData.firstName,
+      last_name: formData.lastName,
+      password: formData.password,
+    });
   };
 
   const handleGoogleSignUp = () => {
     setGoogleLoading(true);
-    initiateGoogleAuth();
+    signInWithGoogle();
   };
 
   return (
