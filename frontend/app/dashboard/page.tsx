@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
-import Loader from "@/components/layout/loader";
 import Logo from "@/components/layout/logo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -17,26 +14,17 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { LogOut } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
   const { user, isLoading, error, logout } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    console.log("User:", user);
-    if (!isLoading && !user) {
-      router.push("/login");
-    }
-  }, [user, isLoading, router]);
-
-  if (isLoading) {
-    return <Loader />;
-  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center space-y-4">
       <Logo />
       <h1 className="text-2xl font-bold text-center">Welcome to Dashboard</h1>
+
+      {isLoading && <UserCard.Skeleton />}
 
       {user && <UserCard user={user} onLogout={logout} />}
 
@@ -55,8 +43,6 @@ function UserCard({ user, onLogout }: { user: User; onLogout: () => void }) {
   const getInitials = (firstName: string, lastName: string) => {
     return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
   };
-
-  console.log("Picture:", user.picture);
 
   return (
     <Card className="max-w-sm">
@@ -91,3 +77,25 @@ function UserCard({ user, onLogout }: { user: User; onLogout: () => void }) {
     </Card>
   );
 }
+
+function UserCardSkeleton() {
+  return (
+    <Card className="max-w-sm">
+      <CardHeader className="flex flex-row items-center gap-4">
+        <Skeleton className="h-16 w-16 rounded-full" />
+        <div className="space-y-2">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-4 w-40" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-4 w-32" />
+      </CardContent>
+      <CardFooter className="flex justify-between gap-4">
+        <Skeleton className="h-10 flex-1" />
+        <Skeleton className="h-10 w-10" />
+      </CardFooter>
+    </Card>
+  );
+}
+UserCard.Skeleton = UserCardSkeleton;
