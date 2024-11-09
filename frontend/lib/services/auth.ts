@@ -1,4 +1,4 @@
-import { fetcher } from "@/lib/utils";
+import { apiRequest } from "@/lib/api";
 import { AUTH_URLS, USER_URLS } from "@/config/api-urls";
 import type {
   User,
@@ -9,7 +9,7 @@ import type {
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<Token> {
-    return fetcher<Token>({
+    return apiRequest<Token>({
       endpoint: AUTH_URLS.LOGIN,
       method: "POST",
       payload: credentials,
@@ -21,7 +21,7 @@ export const authService = {
   },
 
   async register(credentials: RegisterCredentials): Promise<Token> {
-    return fetcher<Token>({
+    return apiRequest<Token>({
       endpoint: AUTH_URLS.REGISTER,
       method: "POST",
       payload: credentials,
@@ -42,9 +42,9 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const user = await fetcher<User>({
+    const user = await apiRequest<User>({
       endpoint: USER_URLS.ME,
-      authRequired: true,
+      requireAuth: true,
     });
     return user;
   },
