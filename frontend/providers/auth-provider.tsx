@@ -2,10 +2,10 @@
 
 import {
   createContext,
-  useContext,
   useCallback,
   useEffect,
   useState,
+  useMemo,
 } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -21,10 +21,15 @@ import type {
   AuthContextType,
   LoginCredentials,
   RegisterCredentials,
+  User,
 } from "@/types/auth";
 import { useToast } from "@/hooks/use-toast";
 
-const AuthContext = createContext<AuthContextType | null>(null);
+// Constants
+const TOKEN_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minute
+const STALE_TIME = 60 * 60 * 1000; // 1 hour
+
+export const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -32,6 +37,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isInitialized, setIsInitialized] = useState(false);
   const { toast } = useToast();
 
+  // Initialize auth state
   useEffect(() => {
     const token = getToken();
     if (token && !isTokenValid(token)) {
@@ -40,51 +46,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsInitialized(true);
   }, []);
 
+  // User data query
   const {
     data: user,
     isLoading,
     error,
     refetch: refreshUser,
-  } = useQuery({
+  } = useQuery<User>({
     queryKey: ["user"],
     queryFn: authService.getCurrentUser,
     enabled: isInitialized && !!getToken(),
     retry: false,
-    staleTime: 60 * 60 * 1000, // 1 hour
+    staleTime: STALE_TIME,
   });
+
+  // Auth handlers
+  const handleAuthSuccess = useCallback(
+    async (token: string) => {
+      setToken(token);
+      await refreshUser();
+      router.push("/dashboard");
+    },
+    [refreshUser, router]
+  );
+
+  const handleAuthError = useCallback(
+    (error: Error) => {
+      toast({
+        title: error.message,
+        variant: "destructive",
+      });
+    },
+    [toast]
+  );
 
   const login = useCallback(
     async (credentials: LoginCredentials) => {
       try {
-        const { access_token: token } = await authService.login(credentials);
-        setToken(token);
-        await refreshUser();
-        router.push("/dashboard");
+        const { access_token } = await authService.login(credentials);
+        handleAuthSuccess(access_token);
       } catch (err) {
-        toast({
-          title: (err as Error).message,
-          variant: "destructive",
-        });
+        handleAuthError(err as Error);
       }
     },
-    [refreshUser, router, toast]
+    [handleAuthSuccess, handleAuthError]
   );
 
   const register = useCallback(
     async (credentials: RegisterCredentials) => {
       try {
-        const { access_token: token } = await authService.register(credentials);
-        setToken(token);
-        await refreshUser();
-        router.push("/dashboard");
+        const { access_token } = await authService.register(credentials);
+        handleAuthSuccess(access_token);
       } catch (err) {
-        toast({
-          title: (err as Error).message,
-          variant: "destructive",
-        });
+        handleAuthError(err as Error);
       }
     },
-    [refreshUser, router, toast]
+    [handleAuthSuccess, handleAuthError]
   );
 
   const signInWithGoogle = useCallback(() => {
@@ -97,40 +114,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   }, [queryClient, router]);
 
-  // Token validity check interval
+  // Token validity check
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    if (typeof window === "undefined") return;
+
+    const checkToken = () => {
       const token = getToken();
       if (token && !isTokenValid(token)) {
         logout();
       }
-    }, 60 * 1000); // Check every minute
+    };
 
+    const intervalId = setInterval(checkToken, TOKEN_CHECK_INTERVAL);
     return () => clearInterval(intervalId);
   }, [logout]);
 
-  const contextValue: AuthContextType = {
-    user: user ?? null,
-    isLoading: !isInitialized || isLoading,
-    error: error instanceof Error ? error : null,
-    login,
-    register,
-    logout,
-    signInWithGoogle,
-    refreshUser: async () => {
-      await refreshUser();
-    },
-  };
+  // Memoized context value
+  const contextValue = useMemo<AuthContextType>(
+    () => ({
+      user: user ?? null,
+      isLoading: !isInitialized || isLoading,
+      error: error instanceof Error ? error : null,
+      login,
+      register,
+      logout,
+      signInWithGoogle,
+      refreshUser: async () => {
+        await refreshUser();
+      },
+    }),
+    [
+      user,
+      isInitialized,
+      isLoading,
+      error,
+      login,
+      register,
+      logout,
+      signInWithGoogle,
+      refreshUser,
+    ]
+  );
 
   return (
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }

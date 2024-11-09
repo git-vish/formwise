@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { RegisterFormValues, registerSchema } from "@/lib/schemas";
-import { useAuth } from "@/providers/auth-provider";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function RegisterForm() {
   const [googleLoading, setGoogleLoading] = useState(false);
