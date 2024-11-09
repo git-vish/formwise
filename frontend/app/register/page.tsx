@@ -13,7 +13,7 @@ import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { RegisterFormValues, registerSchema } from "@/lib/schemas";
 import { useAuth } from "@/hooks/use-auth";
 
-export default function RegisterForm() {
+export default function RegisterPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const { register, signInWithGoogle } = useAuth();
 

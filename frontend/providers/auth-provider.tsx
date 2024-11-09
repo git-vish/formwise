@@ -10,13 +10,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService } from "@/lib/services/auth";
-import {
-  getToken,
-  setToken,
-  removeToken,
-  initiateGoogleAuth,
-  isTokenValid,
-} from "@/lib/auth";
+import { tokenService } from "@/lib/services/token";
 import type {
   AuthContextType,
   LoginCredentials,
@@ -39,9 +33,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Initialize auth state
   useEffect(() => {
-    const token = getToken();
-    if (token && !isTokenValid(token)) {
-      removeToken();
+    const token = tokenService.token.get();
+    if (token && !tokenService.token.isValid(token)) {
+      tokenService.token.remove();
     }
     setIsInitialized(true);
   }, []);
@@ -55,7 +49,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   } = useQuery<User>({
     queryKey: ["user"],
     queryFn: authService.getCurrentUser,
-    enabled: isInitialized && !!getToken(),
+    enabled: isInitialized && !!tokenService.token.get(),
     retry: false,
     staleTime: STALE_TIME,
   });
@@ -63,7 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Auth handlers
   const handleAuthSuccess = useCallback(
     async (token: string) => {
-      setToken(token);
+      tokenService.token.set(token);
       await refreshUser();
       router.push("/dashboard");
     },
@@ -105,11 +99,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const signInWithGoogle = useCallback(() => {
-    initiateGoogleAuth();
+    authService.initiateGoogleAuth();
   }, []);
 
   const logout = useCallback(() => {
-    removeToken();
+    tokenService.token.remove();
     queryClient.clear();
     router.push("/login");
   }, [queryClient, router]);
@@ -119,8 +113,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (typeof window === "undefined") return;
 
     const checkToken = () => {
-      const token = getToken();
-      if (token && !isTokenValid(token)) {
+      const token = tokenService.token.get();
+      if (token && !tokenService.token.isValid(token)) {
         logout();
       }
     };

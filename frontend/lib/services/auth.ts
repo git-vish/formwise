@@ -31,6 +31,16 @@ export const authService = {
     });
   },
 
+  initiateGoogleAuth(): void {
+    if (typeof window === "undefined") return;
+
+    const url = new URL(AUTH_URLS.GOOGLE);
+    const returnUrl = new URL("/google-callback", window.location.origin);
+
+    url.searchParams.set("return_url", returnUrl.toString());
+    window.location.replace(url.toString());
+  },
+
   async getCurrentUser(): Promise<User> {
     const user = await fetcher<User>({
       endpoint: USER_URLS.ME,

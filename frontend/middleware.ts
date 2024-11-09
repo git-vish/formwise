@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { COOKIE_NAME } from "./lib/cookies";
+import { COOKIE_NAME } from "./lib/services/token";
 
 const ROUTE_CONFIG = {
   guestOnly: new Set(["/", "/login", "/register", "/forgot-password"]),

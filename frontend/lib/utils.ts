@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { getToken } from "./auth";
+import { tokenService } from "./services/token";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -28,7 +28,9 @@ export async function fetcher<T>({
     headers: {
       "Content-Type": "application/json",
       ...customHeaders,
-      ...(authRequired ? { Authorization: `Bearer ${getToken()}` } : {}),
+      ...(authRequired
+        ? { Authorization: `Bearer ${tokenService.token.get()}` }
+        : {}),
     },
     ...(payload ? { body: JSON.stringify(payload) } : {}),
   };
