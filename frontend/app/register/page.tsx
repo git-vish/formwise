@@ -120,7 +120,6 @@ export default function RegisterPage() {
         isLoading={googleLoading}
         onClick={handleGoogleSignUp}
         disabled={form.formState.isSubmitting || googleLoading}
-        variant="register"
       />
 
       <div className="mt-4 text-center text-sm">

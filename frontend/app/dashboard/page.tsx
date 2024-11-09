@@ -1,10 +1,10 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import Logo from "@/components/layout/logo";
+import Logo from "@/components/logo";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme/theme-toggle";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { User } from "@/types/auth";
 import {
   Card,

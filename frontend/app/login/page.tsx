@@ -77,7 +77,6 @@ export default function LoginPage() {
         isLoading={googleLoading}
         onClick={handleGoogleLogin}
         disabled={form.formState.isSubmitting || googleLoading}
-        variant="login"
       />
 
       <div className="mt-4 text-center text-sm">

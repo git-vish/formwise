@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "../ui/button";
-import Logo from "./logo";
+import Logo from "@/components/logo";
 
 export default function Header() {
   return (
