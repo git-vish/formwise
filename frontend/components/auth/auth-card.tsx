@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Logo from "@/components/layout/logo";
+import Logo from "@/components/logo";
 
 interface AuthCardProps {
   title: string;

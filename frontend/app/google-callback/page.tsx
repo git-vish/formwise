@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { setToken } from "@/lib/auth";
+import { tokenService } from "@/lib/services/token";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
@@ -21,7 +21,7 @@ function CallbackContent() {
       return;
     }
 
-    setToken(token);
+    tokenService.token.set(token);
     router.push("/dashboard");
   }, [searchParams, router]);
 
