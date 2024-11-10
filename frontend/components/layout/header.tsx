@@ -1,6 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import Logo from "@/components/logo";
@@ -9,9 +9,17 @@ import { ThemeToggle } from "../theme-toggle";
 import { Loader2 } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 
+const AuthPages = new Set(["/login", "/register", "/forgot-password"]);
+
 export default function Header() {
   const router = useRouter();
+  const pathname = usePathname();
   const { user, logout, isLoading: authLoading } = useAuth();
+
+  // Hide header on auth pages
+  if (AuthPages.has(pathname)) {
+    return null;
+  }
 
   const handleLogout = async () => {
     try {

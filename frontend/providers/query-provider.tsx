@@ -1,13 +1,9 @@
 "use client";
 
-import { ReactNode, useMemo } from "react";
+import { useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-type QueryProviderProps = {
-  children: ReactNode;
-};
-
-export function QueryProvider({ children }: QueryProviderProps) {
+export function QueryProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useMemo(
     () =>
       new QueryClient({

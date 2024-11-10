@@ -6,34 +6,28 @@ import { User } from "@/types/auth";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
-import Header from "@/components/layout/header";
-import Footer from "@/components/layout/footer";
 
 export default function DashboardPage() {
   const { user, isLoading, error } = useAuth();
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1 container mx-auto px-4 py-8">
-        <div className="max-w-md mx-auto space-y-8">
-          <h1 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
-            Welcome to Dashboard
-          </h1>
+    <main className="flex-1 container mx-auto px-4 py-8">
+      <div className="max-w-md mx-auto space-y-8">
+        <h1 className="text-center text-3xl font-bold tracking-tight sm:text-4xl">
+          Welcome to Dashboard
+        </h1>
 
-          {isLoading && <UserProfile.Skeleton />}
+        {isLoading && <UserProfile.Skeleton />}
 
-          {error && (
-            <Alert variant="destructive">
-              <AlertDescription>{error.message}</AlertDescription>
-            </Alert>
-          )}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error.message}</AlertDescription>
+          </Alert>
+        )}
 
-          {user && <UserProfile user={user} />}
-        </div>
-      </main>
-      <Footer />
-    </div>
+        {user && <UserProfile user={user} />}
+      </div>
+    </main>
   );
 }
 
