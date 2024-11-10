@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str
     GOOGLE_CLIENT_SECRET: str
 
+    # *** Logfire settings ***
+    LOGFIRE_TOKEN: str = ""
+
     @property
     def allowed_origins(self) -> list[str]:
         """Returns a list of allowed origins."""
