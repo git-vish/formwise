@@ -9,6 +9,7 @@ dependencies = [
     "beanie[srv]>=1.27.0",
     "fastapi-sso>=0.17.0",
     "fastapi[standard]>=0.115.3",
+    "logfire[fastapi,pymongo]>=2.1.2",
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.6.0",
     "pyjwt>=2.9.0",

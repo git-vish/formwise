@@ -1,6 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 
+import logfire
 from asgi_correlation_id import CorrelationIdMiddleware
 from beanie import init_beanie
 from fastapi import APIRouter, FastAPI
@@ -20,6 +21,15 @@ async def lifespan(app: FastAPI):
     """Lifespan context manager to set up and clean up resources."""
     configure_logging()
     logger.info("Initializing application resources")
+
+    # Initialize Logfire
+    if settings.LOGFIRE_TOKEN:
+        logfire.configure(
+            token=settings.LOGFIRE_TOKEN,
+            service_name=settings.APP_TITLE,
+            service_version=settings.APP_VERSION,
+        )
+        logfire.instrument_pymongo()
 
     # Initialize MongoDB connection
     app.state.db = AsyncIOMotorClient(
@@ -42,7 +52,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Place outside of lifespan, so it can be initialized after app initialization
+if settings.LOGFIRE_TOKEN:
+    # Exclude top-level routes e.g. /ping, /openapi.json etc
+    logfire.instrument_fastapi(app, excluded_urls=r"^/[^/]*$")
+
+
+# Add middlewares
 app.add_middleware(CorrelationIdMiddleware)
+
+# Place CORS middleware last(executes first) in the middleware stack
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,

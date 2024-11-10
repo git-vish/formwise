@@ -9,6 +9,8 @@ anyio==4.6.2.post1
     #   watchfiles
 asgi-correlation-id==4.3.4
     # via formwise (pyproject.toml)
+asgiref==3.8.1
+    # via opentelemetry-instrumentation-asgi
 bcrypt==4.2.0
     # via passlib
 beanie==1.27.0
@@ -17,11 +19,19 @@ certifi==2024.8.30
     # via
     #   httpcore
     #   httpx
+    #   requests
+charset-normalizer==3.4.0
+    # via requests
 click==8.1.7
     # via
     #   beanie
     #   typer
     #   uvicorn
+deprecated==1.2.14
+    # via
+    #   opentelemetry-api
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-semantic-conventions
 dnspython==2.7.0
     # via
     #   email-validator
@@ -30,6 +40,8 @@ email-validator==2.2.0
     # via
     #   fastapi
     #   pydantic
+executing==2.1.0
+    # via logfire
 fastapi==0.115.4
     # via
     #   formwise (pyproject.toml)
@@ -38,6 +50,8 @@ fastapi-cli==0.0.5
     # via fastapi
 fastapi-sso==0.17.0
     # via formwise (pyproject.toml)
+googleapis-common-protos==1.65.0
+    # via opentelemetry-exporter-otlp-proto-http
 h11==0.14.0
     # via
     #   httpcore
@@ -55,10 +69,15 @@ idna==3.10
     #   anyio
     #   email-validator
     #   httpx
+    #   requests
+importlib-metadata==8.5.0
+    # via opentelemetry-api
 jinja2==3.1.4
     # via fastapi
 lazy-model==0.2.0
     # via beanie
+logfire==2.1.2
+    # via formwise (pyproject.toml)
 markdown-it-py==3.0.0
     # via rich
 markupsafe==3.0.2
@@ -69,10 +88,61 @@ motor==3.6.0
     # via beanie
 oauthlib==3.2.2
     # via fastapi-sso
-packaging==24.1
-    # via asgi-correlation-id
+opentelemetry-api==1.28.1
+    # via
+    #   opentelemetry-exporter-otlp-proto-http
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-pymongo
+    #   opentelemetry-sdk
+    #   opentelemetry-semantic-conventions
+opentelemetry-exporter-otlp-proto-common==1.28.1
+    # via opentelemetry-exporter-otlp-proto-http
+opentelemetry-exporter-otlp-proto-http==1.28.1
+    # via logfire
+opentelemetry-instrumentation==0.49b1
+    # via
+    #   logfire
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-pymongo
+opentelemetry-instrumentation-asgi==0.49b1
+    # via opentelemetry-instrumentation-fastapi
+opentelemetry-instrumentation-fastapi==0.49b1
+    # via logfire
+opentelemetry-instrumentation-pymongo==0.49b1
+    # via logfire
+opentelemetry-proto==1.28.1
+    # via
+    #   opentelemetry-exporter-otlp-proto-common
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-sdk==1.28.1
+    # via
+    #   logfire
+    #   opentelemetry-exporter-otlp-proto-http
+opentelemetry-semantic-conventions==0.49b1
+    # via
+    #   opentelemetry-instrumentation
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-fastapi
+    #   opentelemetry-instrumentation-pymongo
+    #   opentelemetry-sdk
+opentelemetry-util-http==0.49b1
+    # via
+    #   opentelemetry-instrumentation-asgi
+    #   opentelemetry-instrumentation-fastapi
+packaging==24.2
+    # via
+    #   asgi-correlation-id
+    #   opentelemetry-instrumentation
 passlib==1.7.4
     # via formwise (pyproject.toml)
+protobuf==5.28.3
+    # via
+    #   googleapis-common-protos
+    #   logfire
+    #   opentelemetry-proto
 pydantic==2.9.2
     # via
     #   beanie
@@ -98,8 +168,12 @@ python-multipart==0.0.17
     # via fastapi
 pyyaml==6.0.2
     # via uvicorn
+requests==2.32.3
+    # via opentelemetry-exporter-otlp-proto-http
 rich==13.9.4
-    # via typer
+    # via
+    #   logfire
+    #   typer
 shellingham==1.5.4
     # via typer
 sniffio==1.3.1
@@ -112,15 +186,19 @@ starlette==0.41.2
     #   fastapi
 toml==0.10.2
     # via beanie
-typer==0.12.5
+typer==0.13.0
     # via fastapi-cli
 typing-extensions==4.12.2
     # via
     #   beanie
     #   fastapi
+    #   logfire
+    #   opentelemetry-sdk
     #   pydantic
     #   pydantic-core
     #   typer
+urllib3==2.2.3
+    # via requests
 uvicorn==0.32.0
     # via
     #   fastapi
@@ -129,5 +207,11 @@ uvloop==0.21.0
     # via uvicorn
 watchfiles==0.24.0
     # via uvicorn
-websockets==13.1
+websockets==14.0
     # via uvicorn
+wrapt==1.16.0
+    # via
+    #   deprecated
+    #   opentelemetry-instrumentation
+zipp==3.20.2
+    # via importlib-metadata
