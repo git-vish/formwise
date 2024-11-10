@@ -55,7 +55,7 @@ app = FastAPI(
 # Place outside of lifespan, so it can be initialized after app initialization
 if settings.LOGFIRE_TOKEN:
     # Exclude top-level routes e.g. /ping, /openapi.json etc
-    logfire.instrument_fastapi(app, excluded_urls=r"^/[^/]*$")
+    logfire.instrument_fastapi(app, excluded_urls=r"^(https?://[^/]+)?/[^/]+/?$")
 
 
 # Add middlewares
