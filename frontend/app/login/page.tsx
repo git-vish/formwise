@@ -21,6 +21,8 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  const isSubmitting = form.formState.isSubmitting || googleLoading;
+
   const handleLogin = async (formData: LoginFormValues) => {
     await login(formData);
   };
@@ -42,6 +44,7 @@ export default function LoginPage() {
             id="email"
             type="email"
             placeholder="m@example.com"
+            disabled={isSubmitting}
             {...form.register("email")}
           />
           {form.formState.errors.email && (
@@ -57,18 +60,19 @@ export default function LoginPage() {
               Forgot password?
             </Link>
           </div>
-          <Input id="password" type="password" {...form.register("password")} />
+          <Input
+            id="password"
+            type="password"
+            disabled={isSubmitting}
+            {...form.register("password")}
+          />
           {form.formState.errors.password && (
             <p className="text-sm text-destructive">
               {form.formState.errors.password.message}
             </p>
           )}
         </div>
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={form.formState.isSubmitting || googleLoading}
-        >
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {form.formState.isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </form>
@@ -76,7 +80,7 @@ export default function LoginPage() {
       <GoogleAuthButton
         isLoading={googleLoading}
         onClick={handleGoogleLogin}
-        disabled={form.formState.isSubmitting || googleLoading}
+        disabled={isSubmitting}
       />
 
       <div className="mt-4 text-center text-sm">
