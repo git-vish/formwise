@@ -13,7 +13,7 @@ const AuthPages = new Set(["/login", "/register", "/forgot-password"]);
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, logout, isLoading: authLoading, updateUser } = useAuth();
 
   if (AuthPages.has(pathname)) {
     return null;
@@ -41,7 +41,11 @@ export default function Header() {
           ) : user ? (
             <>
               <ThemeToggle />
-              <UserMenu user={user} onLogout={handleLogout} />
+              <UserMenu
+                user={user}
+                onLogout={handleLogout}
+                onUpdateUser={updateUser}
+              />
             </>
           ) : (
             <>

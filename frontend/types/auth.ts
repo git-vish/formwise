@@ -33,4 +33,5 @@ export interface AuthContextType extends AuthState {
   logout: () => void;
   signInWithGoogle: () => void;
   refreshUser: () => Promise<void>;
+  updateUser: (update: Partial<User>) => Promise<void>;
 }

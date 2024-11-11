@@ -18,9 +18,14 @@ import UserProfile from "./user-profile";
 interface UserMenuProps {
   user: User;
   onLogout: () => void;
+  onUpdateUser: (update: Partial<User>) => Promise<void>;
 }
 
-export default function UserMenu({ user, onLogout }: UserMenuProps) {
+export default function UserMenu({
+  user,
+  onLogout,
+  onUpdateUser,
+}: UserMenuProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const getInitials = (user: User) => {
@@ -62,6 +67,7 @@ export default function UserMenu({ user, onLogout }: UserMenuProps) {
         user={user}
         open={isProfileOpen}
         onOpenChange={setIsProfileOpen}
+        onUpdateUser={onUpdateUser}
       />
     </>
   );

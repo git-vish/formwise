@@ -21,12 +21,14 @@ interface UserProfileProps {
   user: User;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onUpdateUser: (update: Partial<User>) => Promise<void>;
 }
 
 export default function UserProfile({
   user,
   open,
   onOpenChange,
+  onUpdateUser,
 }: UserProfileProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -49,7 +51,7 @@ export default function UserProfile({
           </DialogDescription>
         </DialogHeader>
         {isEditing ? (
-          <EditProfile user={user} />
+          <EditProfile user={user} onSave={onUpdateUser} />
         ) : (
           <ViewProfile user={user} onEdit={() => setIsEditing(true)} />
         )}
@@ -77,12 +79,6 @@ function ViewProfile({ user, onEdit }: ViewProfileProps) {
           <p className="text-sm font-medium text-muted-foreground">Email</p>
           <p className="text-sm">{user.email}</p>
         </div>
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-muted-foreground">
-            Auth Provider
-          </p>
-          <p className="text-sm">{user.auth_provider}</p>
-        </div>
       </div>
       {user.auth_provider === "email" && (
         <DialogFooter>
@@ -97,9 +93,10 @@ function ViewProfile({ user, onEdit }: ViewProfileProps) {
 
 interface EditProfileProps {
   user: User;
+  onSave: (update: Partial<User>) => Promise<void>;
 }
 
-function EditProfile({ user }: EditProfileProps) {
+function EditProfile({ user, onSave }: EditProfileProps) {
   const form = useForm<EditProfileFormValues>({
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
@@ -117,12 +114,21 @@ function EditProfile({ user }: EditProfileProps) {
     first_name != user.first_name || last_name != user.last_name || password;
 
   const handleEditProfile = async (formData: EditProfileFormValues) => {
+    // Filter out 'confirmPassword' and unchanged fields
     const filteredData = Object.fromEntries(
       Object.entries(formData).filter(
-        ([key, value]) => value && value !== user[key as keyof User]
+        ([key, value]) =>
+          key !== "confirmPassword" &&
+          value &&
+          value !== user[key as keyof User]
       )
     );
-    console.log(filteredData);
+
+    if (Object.keys(filteredData).length > 0) {
+      await onSave(filteredData as Partial<User>);
+      form.resetField("password");
+      form.resetField("confirmPassword");
+    }
   };
 
   return (

@@ -2,7 +2,7 @@ import { tokenService } from "@/lib/services/token";
 
 interface RequestParams {
   endpoint: string;
-  method?: "GET" | "POST" | "PUT" | "DELETE";
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   payload?: unknown;
   requireAuth?: boolean;
   errorMessages?: Record<number, string>;
