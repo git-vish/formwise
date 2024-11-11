@@ -4,6 +4,7 @@ import { User } from "@/types/auth";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -24,6 +25,9 @@ export default function UserProfile({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Profile Details</DialogTitle>
+          <DialogDescription>
+            View and edit your profile details.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-1">
