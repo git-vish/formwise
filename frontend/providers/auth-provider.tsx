@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (token: string) => {
       tokenService.token.set(token);
       await refreshUser();
-      router.push("/dashboard");
+      router.replace("/dashboard");
     },
     [refreshUser, router]
   );

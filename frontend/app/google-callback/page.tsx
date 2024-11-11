@@ -22,7 +22,7 @@ function CallbackContent() {
     }
 
     tokenService.token.set(token);
-    router.push("/dashboard");
+    router.replace("/dashboard");
   }, [searchParams, router]);
 
   if (error) {
