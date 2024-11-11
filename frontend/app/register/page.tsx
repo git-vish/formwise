@@ -24,8 +24,8 @@ export default function RegisterPage() {
   const handleRegister = async (formData: RegisterFormValues) => {
     register({
       email: formData.email,
-      first_name: formData.firstName,
-      last_name: formData.lastName,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
       password: formData.password,
     });
   };
@@ -47,11 +47,11 @@ export default function RegisterPage() {
             <Input
               id="firstName"
               placeholder="Vishwajeet"
-              {...form.register("firstName")}
+              {...form.register("first_name")}
             />
-            {form.formState.errors.firstName && (
+            {form.formState.errors.first_name && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.firstName.message}
+                {form.formState.errors.first_name.message}
               </p>
             )}
           </div>
@@ -60,11 +60,11 @@ export default function RegisterPage() {
             <Input
               id="lastName"
               placeholder="Ghatage"
-              {...form.register("lastName")}
+              {...form.register("last_name")}
             />
-            {form.formState.errors.lastName && (
+            {form.formState.errors.last_name && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.lastName.message}
+                {form.formState.errors.last_name.message}
               </p>
             )}
           </div>
