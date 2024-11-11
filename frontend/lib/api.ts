@@ -1,12 +1,12 @@
-import { tokenService } from "./services/token";
+import { tokenService } from "@/lib/services/token";
 
-type RequestParams = {
+interface RequestParams {
   endpoint: string;
   method?: "GET" | "POST" | "PUT" | "DELETE";
   payload?: unknown;
   requireAuth?: boolean;
   errorMessages?: Record<number, string>;
-};
+}
 
 export async function apiRequest<T>({
   endpoint,
