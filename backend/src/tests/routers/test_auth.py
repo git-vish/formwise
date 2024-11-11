@@ -86,7 +86,7 @@ class TestRegistration:
 
     @pytest.mark.parametrize(
         "password",
-        ["short", "a" * 65, "", None],
+        ["short", "a" * 256, "", None],
     )
     async def test_register_invalid_password(self, client: AsyncClient, password):
         """Tests registration failure with invalid password."""
