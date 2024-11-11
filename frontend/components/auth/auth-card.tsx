@@ -15,7 +15,7 @@ interface AuthCardProps {
 
 export function AuthCard({ title, description, children }: AuthCardProps) {
   return (
-    <div className="flex flex-col h-screen w-full items-center justify-center px-4 space-y-6">
+    <div className="flex-grow flex flex-col items-center justify-center px-4 space-y-6">
       <Logo />
       <Card className="mx-auto max-w-sm">
         <CardHeader>

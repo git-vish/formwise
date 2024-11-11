@@ -8,7 +8,7 @@ import {
   useMemo,
 } from "react";
 import { useRouter } from "next/navigation";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authService } from "@/lib/services/auth";
 import { tokenService } from "@/lib/services/token";
 import type {
@@ -20,7 +20,7 @@ import type {
 import { useToast } from "@/hooks/use-toast";
 
 // Constants
-const TOKEN_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minute
+const TOKEN_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
 const STALE_TIME = 60 * 60 * 1000; // 1 hour
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -59,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (token: string) => {
       tokenService.token.set(token);
       await refreshUser();
-      router.push("/dashboard");
+      router.replace("/dashboard");
     },
     [refreshUser, router]
   );
@@ -108,6 +108,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     router.push("/login");
   }, [queryClient, router]);
 
+  const updateUserMutation = useMutation({
+    mutationFn: async (update: Partial<User>) => {
+      return authService.updateUser(update);
+    },
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData(["user"], updatedUser);
+      toast({
+        title: "Details updated successfully.",
+      });
+    },
+  });
+
+  const updateUser = useCallback(
+    async (update: Partial<User>) => {
+      updateUserMutation.mutate(update);
+    },
+    [updateUserMutation]
+  );
+
   // Token validity check
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -136,6 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refreshUser: async () => {
         await refreshUser();
       },
+      updateUser,
     }),
     [
       user,

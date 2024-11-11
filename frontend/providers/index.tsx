@@ -17,12 +17,7 @@ const AuthProvider = dynamic(
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
+    <ThemeProvider>
       <QueryProvider>
         <AuthProvider>
           {children}

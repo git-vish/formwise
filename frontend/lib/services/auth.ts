@@ -42,10 +42,21 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    const user = await apiRequest<User>({
+    return apiRequest<User>({
       endpoint: USER_URLS.ME,
       requireAuth: true,
     });
-    return user;
+  },
+
+  async updateUser(update: Partial<User>): Promise<User> {
+    return apiRequest<User>({
+      endpoint: USER_URLS.ME,
+      method: "PATCH",
+      payload: update,
+      requireAuth: true,
+      errorMessages: {
+        304: "No changes made.",
+      },
+    });
   },
 };

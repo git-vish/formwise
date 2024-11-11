@@ -21,11 +21,13 @@ export default function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
+  const isSubmitting = form.formState.isSubmitting || googleLoading;
+
   const handleRegister = async (formData: RegisterFormValues) => {
-    register({
+    await register({
       email: formData.email,
-      first_name: formData.firstName,
-      last_name: formData.lastName,
+      first_name: formData.first_name,
+      last_name: formData.last_name,
       password: formData.password,
     });
   };
@@ -47,11 +49,12 @@ export default function RegisterPage() {
             <Input
               id="firstName"
               placeholder="Vishwajeet"
-              {...form.register("firstName")}
+              disabled={isSubmitting}
+              {...form.register("first_name")}
             />
-            {form.formState.errors.firstName && (
+            {form.formState.errors.first_name && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.firstName.message}
+                {form.formState.errors.first_name.message}
               </p>
             )}
           </div>
@@ -60,11 +63,12 @@ export default function RegisterPage() {
             <Input
               id="lastName"
               placeholder="Ghatage"
-              {...form.register("lastName")}
+              disabled={isSubmitting}
+              {...form.register("last_name")}
             />
-            {form.formState.errors.lastName && (
+            {form.formState.errors.last_name && (
               <p className="text-sm text-destructive">
-                {form.formState.errors.lastName.message}
+                {form.formState.errors.last_name.message}
               </p>
             )}
           </div>
@@ -75,6 +79,7 @@ export default function RegisterPage() {
             id="email"
             type="email"
             placeholder="m@example.com"
+            disabled={isSubmitting}
             {...form.register("email")}
           />
           {form.formState.errors.email && (
@@ -85,7 +90,12 @@ export default function RegisterPage() {
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" {...form.register("password")} />
+          <Input
+            id="password"
+            type="password"
+            disabled={isSubmitting}
+            {...form.register("password")}
+          />
           {form.formState.errors.password && (
             <p className="text-sm text-destructive">
               {form.formState.errors.password.message}
@@ -97,6 +107,7 @@ export default function RegisterPage() {
           <Input
             id="confirmPassword"
             type="password"
+            disabled={isSubmitting}
             {...form.register("confirmPassword")}
           />
           {form.formState.errors.confirmPassword && (
@@ -105,11 +116,7 @@ export default function RegisterPage() {
             </p>
           )}
         </div>
-        <Button
-          type="submit"
-          className="w-full"
-          disabled={form.formState.isSubmitting || googleLoading}
-        >
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {form.formState.isSubmitting
             ? "Creating account..."
             : "Create account"}
@@ -119,7 +126,7 @@ export default function RegisterPage() {
       <GoogleAuthButton
         isLoading={googleLoading}
         onClick={handleGoogleSignUp}
-        disabled={form.formState.isSubmitting || googleLoading}
+        disabled={isSubmitting}
       />
 
       <div className="mt-4 text-center text-sm">
