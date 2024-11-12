@@ -3,6 +3,6 @@ export interface Form {
   title: string;
   description?: string;
   created_at: string;
-  status: "active" | "inactive";
+  accepting_responses: boolean;
   responses: number;
 }

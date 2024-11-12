@@ -79,7 +79,7 @@ export default function FormCard({ form }: FormCardProps) {
                 {formatDate(form.created_at)}
               </time>
             </div>
-            {form.status === "active" && responsePercentage < 100 && (
+            {form.accepting_responses && responsePercentage < 100 && (
               <Badge>Live</Badge>
             )}
           </div>

@@ -15,7 +15,7 @@ const forms = [
     description:
       "Annual survey to measure employee engagement and workplace satisfaction",
     created_at: "2024-03-01",
-    status: "active",
+    accepting_responses: true,
     responses: 150,
   },
   {
@@ -23,7 +23,7 @@ const forms = [
     title: "Product Feature Request",
     description: "Help us prioritize new features for our next release",
     created_at: "2024-03-15",
-    status: "inactive",
+    accepting_responses: false,
     responses: 89,
   },
   {
@@ -31,14 +31,14 @@ const forms = [
     title: "Conference Registration Form",
     description: "Sign up for TechConnect 2024 - Limited spots available",
     created_at: "2024-02-28",
-    status: "active",
+    accepting_responses: true,
     responses: 142,
   },
   {
     id: "form-4",
     title: "Website Redesign Feedback",
     created_at: "2024-03-18",
-    status: "inactive",
+    accepting_responses: false,
     responses: 0,
   },
 ];
