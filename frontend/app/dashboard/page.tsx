@@ -1,7 +1,9 @@
+import FormsSection from "@/components/dashboard/forms";
+
 export default function DashboardPage() {
   return (
-    <main className="flex-grow flex flex-col items-center justify-center">
-      <h1 className="text-3xl text-center font-bold">Dashboard</h1>
-    </main>
+    <div className="container mx-auto px-4 py-8">
+      <FormsSection />
+    </div>
   );
 }
