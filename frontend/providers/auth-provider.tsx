@@ -20,7 +20,7 @@ import type {
 import { useToast } from "@/hooks/use-toast";
 
 // Constants
-const TOKEN_CHECK_INTERVAL = 5 * 60 * 1000; // 5 minutes
+const TOKEN_CHECK_INTERVAL = 15 * 60 * 1000; // 15 minutes
 const STALE_TIME = 60 * 60 * 1000; // 1 hour
 
 export const AuthContext = createContext<AuthContextType | null>(null);
