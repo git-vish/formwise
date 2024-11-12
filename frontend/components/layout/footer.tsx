@@ -1,4 +1,3 @@
-// components/footer.tsx
 import Link from "next/link";
 import { GithubIcon } from "lucide-react";
 import { siteConfig } from "@/config/site";

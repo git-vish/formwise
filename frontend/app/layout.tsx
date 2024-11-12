@@ -47,7 +47,7 @@ export default function RootLayout({ children }: Readonly<RootLayoutProps>) {
       >
         <Providers>
           <Header />
-          {children}
+          <main className="flex-1">{children}</main>
           <Footer />
         </Providers>
       </body>
