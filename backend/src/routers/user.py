@@ -30,7 +30,7 @@ async def update_profile(
     update: UserUpdate, user: Annotated[User, Depends(get_current_user)]
 ):
     """Updates the current authenticated user's profile information."""
-    logger.info(f"Updating profile for user: {user}")
+    logger.info("Updating profile for user: %s", user)
 
     updates = update.model_dump(exclude_unset=True, exclude_none=True)
     modified = False
@@ -48,9 +48,9 @@ async def update_profile(
             modified = True
 
     if not modified:
-        logger.info(f"Profile update skipped for user: {user}")
+        logger.info("Profile update skipped for user: %s", user)
         return Response(status_code=status.HTTP_304_NOT_MODIFIED)
 
     await user.save()
-    logger.info(f"Profile updated for user: {user}")
+    logger.info("Profile updated for user: %s", user)
     return user

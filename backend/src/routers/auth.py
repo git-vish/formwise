@@ -32,7 +32,7 @@ async def register(user: UserCreate):
     """Registers a new user with an email and password.
     Returns a success message if the user is created.
     """
-    logger.info(f"Registering user: {user.email}")
+    logger.info("Registering user: %s", user.email)
 
     if await User.get_by_email(email=user.email):
         raise EntityAlreadyExistsError("User with this email already exists.")
@@ -46,7 +46,7 @@ async def register(user: UserCreate):
         auth_provider=AuthProvider.EMAIL,
     )
     await new_user.create()
-    logger.info(f"Registered user: {new_user}")
+    logger.info("Registered user: %s", new_user)
 
     return Token(access_token=create_access_token(new_user.email))
 
@@ -77,7 +77,7 @@ async def authenticate_user(email: str, password: str) -> User:
     if not verify_password(password, user.hashed_password):
         raise AuthenticationError("Invalid credentials.")
 
-    logger.info(f"Authenticated user: {user}")
+    logger.info("Authenticated user: %s", user)
     return user
 
 
@@ -97,7 +97,7 @@ async def login(user: UserLogin):
 @router.get("/google", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 async def google_auth(request: Request, return_url: AnyHttpUrl):
     """Redirects to Google OAuth2 authorization page."""
-    logger.info(f"Google authentication requested from: {return_url.path}")
+    logger.info("Google authentication requested from: %s", return_url.path)
     async with google_sso:
         return await google_sso.get_login_redirect(
             redirect_uri=request.url_for("google_auth_callback"),
@@ -115,14 +115,15 @@ async def google_auth_callback(request: Request, state: AnyHttpUrl):
         async with google_sso:
             google_user: OpenID = await google_sso.verify_and_process(request)
     except Exception as err:
-        logger.error(f"Google authentication failed: {err}, redirecting to: {state}")
+        logger.error("Google authentication failed: %s, redirecting to: %s", err, state)
         return RedirectResponse(
             url=f"{state}?error=Could not authenticate with Google",
             status_code=status.HTTP_303_SEE_OTHER,
         )
 
-    logger.info(f"Google callback succeeded for: {google_user.email}")
+    logger.info("Google callback succeeded for: %s", google_user.email)
     user = await User.get_by_email(email=google_user.email)
+    updated = False
 
     if not user:
         user = User(
@@ -134,11 +135,26 @@ async def google_auth_callback(request: Request, state: AnyHttpUrl):
             is_active=True,
         )
         await user.create()
-        logger.info(f"Created user: {user}")
+        logger.info("Registered user: %s", user)
+    else:
+        if not user.is_active:
+            user.is_active = True
+            updated = True
+            logger.info("Activated user: %s", user)
+
+        for key in ("picture", "first_name", "last_name"):
+            google_value = getattr(google_user, key)
+            if getattr(user, key) != google_value:
+                setattr(user, key, google_value)
+                updated = True
+                logger.info("Updated %s for: %s", key, user)
+
+    if updated:
+        await user.save()
 
     access_token = create_access_token(user.email)
 
-    logger.info(f"Authenticated user: {user}, redirecting to: {state}")
+    logger.info("Authenticated user: %s, redirecting to: %s", user.email, state)
     return RedirectResponse(
         url=f"{state}?token={access_token}", status_code=status.HTTP_303_SEE_OTHER
     )
