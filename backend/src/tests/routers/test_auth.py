@@ -217,6 +217,10 @@ class TestGoogleAuthCallback:
             return OpenID(
                 id=fake.uuid4(),
                 email=user.email,
+                # updated fields
+                first_name=fake.first_name(),
+                last_name=fake.last_name(),
+                picture=fake.image_url(),
             )
         return OpenID(
             id=fake.uuid4(),
@@ -272,6 +276,17 @@ class TestGoogleAuthCallback:
         assert user.email == mock_sso_user.email
         assert user.auth_provider == AuthProvider.EMAIL
 
+        # Verify updated user data
+        assert (
+            (user.first_name, user.last_name, user.picture)
+            == (
+                mock_sso_user.first_name,
+                mock_sso_user.last_name,
+                Url(mock_sso_user.picture),
+            )
+            != (test_user.first_name, test_user.last_name, test_user.picture)
+        )
+
     async def test_google_callback_google_user_success(
         self, mock_google_sso, client: AsyncClient, test_google_user: User
     ):
@@ -293,6 +308,21 @@ class TestGoogleAuthCallback:
         assert user.email == mock_sso_user.email
         assert user.auth_provider == AuthProvider.GOOGLE
 
+        # Verify updated user data
+        assert (
+            (user.first_name, user.last_name, user.picture)
+            == (
+                mock_sso_user.first_name,
+                mock_sso_user.last_name,
+                Url(mock_sso_user.picture),
+            )
+            != (
+                test_google_user.first_name,
+                test_google_user.last_name,
+                test_google_user.picture,
+            )
+        )
+
     async def test_google_callback_verification_failure(
         self, mock_google_sso, client: AsyncClient
     ):
@@ -313,6 +343,17 @@ class TestGoogleAuthCallback:
         mock_google_sso.verify_and_process = mock.AsyncMock()
 
         response = await client.get(f"{self.URL}?code=fake_code")
+
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert mock_google_sso.verify_and_process.call_count == 0
+
+    async def test_google_callback_invalid_state(
+        self, mock_google_sso, client: AsyncClient
+    ):
+        """Tests Google callback failure with invalid state."""
+        mock_google_sso.verify_and_process = mock.AsyncMock()
+
+        response = await client.get(f"{self.URL}?code=fake_code&state=invalid_state")
 
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert mock_google_sso.verify_and_process.call_count == 0
