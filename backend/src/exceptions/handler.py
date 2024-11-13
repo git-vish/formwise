@@ -25,7 +25,7 @@ def create_exception_handler(
 
     async def exception_handler(_: Request, exc: FormwiseError) -> JSONResponse:
         message = default_message if exc.message is None else exc.message
-        logger.error(f"{status_code}, {message}")
+        logger.error("Error %s: %s", status_code, message)
         return JSONResponse(status_code=status_code, content={"detail": message})
 
     return exception_handler
