@@ -1,10 +1,6 @@
-from typing import Annotated
-
-from pydantic import UrlConstraints
-from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-MongoDsn = Annotated[MultiHostUrl, UrlConstraints(allowed_schemes=["mongodb+srv"])]
+from src.utils.types import MongoDsn
 
 
 class Settings(BaseSettings):
