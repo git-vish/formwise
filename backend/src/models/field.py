@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from datetime import date, datetime
 from enum import StrEnum
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Self, Union
 
 from email_validator import validate_email
 from pydantic import (
@@ -10,11 +10,12 @@ from pydantic import (
     BaseModel,
     Field,
     PositiveInt,
+    field_validator,
     model_validator,
 )
 
 from src.utils import generate_unique_id
-from src.utils.types import HelpText, NonEmptyStr, Title
+from src.utils.types import HelpText, Option, Title
 
 
 class FieldType(StrEnum):
@@ -51,7 +52,7 @@ class BaseField(BaseModel, ABC):
     ]
 
     @model_validator(mode="after")
-    def _generate_field_tag(self) -> "BaseField":
+    def _generate_field_tag(self) -> Self:
         """Generates a unique tag for the field."""
         if not self.tag:
             self.tag = generate_unique_id(prefix=self.type)
@@ -84,7 +85,7 @@ class TextBase(BaseModel):
     max_length: Annotated[PositiveInt, Field(50, description=_MAX_LENGTH_DESC)]
 
     @model_validator(mode="after")
-    def validate_length_constraints(self) -> "TextBase":
+    def validate_length_constraints(self) -> Self:
         """Ensures that min_length does not exceed max_length."""
         if self.min_length > self.max_length:
             raise ValueError("min_length cannot exceed max_length.")
@@ -132,15 +133,14 @@ class SelectionBase(BaseModel):
     """Mixin for fields with predefined options."""
 
     options: Annotated[
-        list[NonEmptyStr], Field(description="List of available choices")
+        list[Option], Field(description="List of available choices", min_length=1)
     ]
 
-    @model_validator(mode="after")
-    def validate_unique_options(self) -> "SelectionBase":
+    @field_validator("options")
+    @classmethod
+    def options_must_be_unique(cls, value: list[Option]) -> list[Option]:
         """Ensures all options are unique."""
-        if len(self.options) != len(set(self.options)):
-            raise ValueError("Options must be unique.")
-        return self
+        return list(set(value))
 
     def validate_single_choice(self, answer: str) -> str:
         if answer not in set(self.options):
@@ -189,7 +189,7 @@ class DateField(BaseField):
     max_date: Annotated[date | None, Field(None, description="Latest allowed date")]
 
     @model_validator(mode="after")
-    def validate_date_constraints(self) -> "DateField":
+    def validate_date_constraints(self) -> Self:
         """Validates date range constraints."""
         if self.min_date and self.max_date and self.min_date > self.max_date:
             raise ValueError("min_date cannot exceed max_date")
@@ -230,7 +230,7 @@ class NumberField(BaseField):
     precision: Annotated[PositiveInt, Field(2, description="Number of decimal places")]
 
     @model_validator(mode="after")
-    def validate_range_constraints(self) -> "NumberField":
+    def validate_range_constraints(self) -> Self:
         """Validates numeric range constraints."""
         if self.min_value and self.max_value and self.min_value > self.max_value:
             raise ValueError("min_value cannot exceed max_value")
