@@ -4,7 +4,9 @@ from typing import Annotated, Optional
 from uuid import uuid4
 
 from beanie import Document, Indexed
-from pydantic import BaseModel, EmailStr, Field, HttpUrl, SecretStr
+from pydantic import BaseModel, EmailStr, Field, HttpUrl
+
+from src.utils.types import Name, Password
 
 
 class AuthProvider(StrEnum):
@@ -22,8 +24,8 @@ class User(Document):
 
     id: Annotated[str, Field(default_factory=lambda: uuid4().hex)]
     email: Annotated[EmailStr, Indexed(unique=True)]
-    first_name: str
-    last_name: str
+    first_name: Name
+    last_name: Name
     picture: HttpUrl | None = None
     hashed_password: str | None = None
     auth_provider: AuthProvider
@@ -52,15 +54,15 @@ class User(Document):
 class UserBase(BaseModel):
     """Base model for user requests and responses."""
 
-    first_name: str = Field(..., min_length=1, max_length=20)
-    last_name: str = Field(..., min_length=1, max_length=20)
+    first_name: Name
+    last_name: Name
 
 
 class UserLogin(BaseModel):
     """Request model for user login."""
 
     email: EmailStr
-    password: SecretStr = Field(..., min_length=6, max_length=64)
+    password: Password
 
 
 class UserCreate(UserBase, UserLogin):
@@ -78,6 +80,6 @@ class UserProfile(UserBase):
 class UserUpdate(BaseModel):
     """Request model for user profile update."""
 
-    first_name: str | None = Field(None, min_length=1, max_length=20)
-    last_name: str | None = Field(None, min_length=1, max_length=20)
-    password: SecretStr | None = Field(None, min_length=6, max_length=64)
+    first_name: Name | None = None
+    last_name: Name | None = None
+    password: Password | None = None

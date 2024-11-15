@@ -66,6 +66,7 @@ export default function UserMenu({
       <UserProfile
         user={user}
         open={isProfileOpen}
+        setIsOpen={setIsProfileOpen}
         onOpenChange={setIsProfileOpen}
         onUpdateUser={onUpdateUser}
       />
