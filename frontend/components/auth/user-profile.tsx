@@ -1,14 +1,6 @@
 "use client";
 
 import { User } from "@/types/auth";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -16,6 +8,14 @@ import { EditProfileFormValues, editProfileSchema } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
+import {
+  ResponsiveModal,
+  ResponsiveModalContent,
+  ResponsiveModalDescription,
+  ResponsiveModalHeader,
+  ResponsiveModalTitle,
+  ResponsiveModalFooter,
+} from "@/components/ui/responsive-modal";
 
 interface UserProfileProps {
   user: User;
@@ -40,23 +40,23 @@ export default function UserProfile({
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Profile Details</DialogTitle>
-          <DialogDescription>
+    <ResponsiveModal open={open} onOpenChange={handleOpenChange}>
+      <ResponsiveModalContent>
+        <ResponsiveModalHeader>
+          <ResponsiveModalTitle>Profile Details</ResponsiveModalTitle>
+          <ResponsiveModalDescription>
             {isEditing
               ? "Edit your profile details."
               : "View your profile details."}
-          </DialogDescription>
-        </DialogHeader>
+          </ResponsiveModalDescription>
+        </ResponsiveModalHeader>
         {isEditing ? (
           <EditProfile user={user} onSave={onUpdateUser} />
         ) : (
           <ViewProfile user={user} onEdit={() => setIsEditing(true)} />
         )}
-      </DialogContent>
-    </Dialog>
+      </ResponsiveModalContent>
+    </ResponsiveModal>
   );
 }
 
@@ -81,11 +81,11 @@ function ViewProfile({ user, onEdit }: ViewProfileProps) {
         </div>
       </div>
       {user.auth_provider === "email" && (
-        <DialogFooter>
+        <ResponsiveModalFooter>
           <Button variant="outline" onClick={onEdit}>
             <span>Edit</span>
           </Button>
-        </DialogFooter>
+        </ResponsiveModalFooter>
       )}
     </>
   );
