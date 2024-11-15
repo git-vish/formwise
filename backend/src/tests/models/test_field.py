@@ -137,16 +137,22 @@ class TestSelectionBase:
     @pytest.mark.parametrize(
         "options",
         (
-            ["Option1", "Option1"],
             "Option1",
             ["Option1", ""],
+            [],
+            None,
         ),
-        ids=["duplicate", "string", "empty"],
+        ids=["string", "empty-string", "empty-list", "none"],
     )
     def test_selection_base_invalid_options(self, options):
-        """Tests invalid constraints for selection base."""
+        """Tests invalid options raise ValidationError."""
         with pytest.raises(ValidationError):
             SelectionBase(options=options)
+
+    def test_selection_base_duplicate_options(self):
+        """Tests that duplicate options are reduced to unique values."""
+        base = SelectionBase(options=["Option1", "Option1"])
+        assert base.options == ["Option1"]
 
 
 class TestSelectField:
