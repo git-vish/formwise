@@ -44,8 +44,8 @@ async def client() -> AsyncClient:
     return AsyncClient(transport=ASGITransport(app=app), base_url="http://test")
 
 
-@pytest.fixture()
-async def test_user(client) -> User:
+@pytest.fixture
+async def test_user() -> User:
     """Creates a test user."""
     user = User(
         email=TEST_USER_DATA["email"],
@@ -58,8 +58,8 @@ async def test_user(client) -> User:
     return user
 
 
-@pytest.fixture()
-async def test_google_user(client) -> User:
+@pytest.fixture
+async def test_google_user() -> User:
     """Creates a test user with Google auth provider."""
     user = User(
         email=TEST_USER_DATA["email"],
