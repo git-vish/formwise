@@ -1,5 +1,3 @@
-import random
-import string
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from datetime import date, datetime
@@ -15,7 +13,8 @@ from pydantic import (
     model_validator,
 )
 
-from src.utils.types import Label, NonEmptyStr
+from src.utils import generate_unique_id
+from src.utils.types import HelpText, NonEmptyStr, Title
 
 
 class FieldType(StrEnum):
@@ -42,23 +41,20 @@ class BaseField(BaseModel, ABC):
 
     type: FieldType
     tag: Annotated[str, Field("", description="Unique identifier for the field")]
-    label: Annotated[Label, Field(description="Human-readable field label")]
+    label: Annotated[Title, Field(description="Human-readable field label")]
     help_text: Annotated[
-        str | None,
-        Field(default=None, description="Additional guidance for field completion"),
+        HelpText | None,
+        Field(None, description="Additional guidance for field completion"),
     ]
     required: Annotated[
-        bool, Field(default=True, description="Whether this field must be filled")
+        bool, Field(True, description="Whether this field must be filled")
     ]
 
     @model_validator(mode="after")
     def _generate_field_tag(self) -> "BaseField":
         """Generates a unique tag for the field."""
         if not self.tag:
-            random_str = "".join(
-                random.choices(string.ascii_letters + string.digits, k=8)
-            )
-            self.tag = f"{self.type}-{random_str}"
+            self.tag = generate_unique_id(prefix=self.type)
         return self
 
     @abstractmethod
@@ -84,8 +80,8 @@ _MAX_LENGTH_DESC = "Maximum number of characters allowed"
 class TextBase(BaseModel):
     """Mixin for text fields with length constraints."""
 
-    min_length: Annotated[PositiveInt, Field(default=1, description=_MIN_LENGTH_DESC)]
-    max_length: Annotated[PositiveInt, Field(default=50, description=_MAX_LENGTH_DESC)]
+    min_length: Annotated[PositiveInt, Field(1, description=_MIN_LENGTH_DESC)]
+    max_length: Annotated[PositiveInt, Field(50, description=_MAX_LENGTH_DESC)]
 
     @model_validator(mode="after")
     def validate_length_constraints(self) -> "TextBase":
@@ -126,7 +122,7 @@ class ParagraphField(BaseField, TextBase):
     """Multi-line text input field."""
 
     type: Literal[FieldType.PARAGRAPH] = FieldType.PARAGRAPH
-    max_length: Annotated[PositiveInt, Field(default=500, description=_MAX_LENGTH_DESC)]
+    max_length: Annotated[PositiveInt, Field(500, description=_MAX_LENGTH_DESC)]
 
     def validate_answer(self, answer: str) -> str:
         return self.validate_length(answer)
@@ -189,12 +185,8 @@ class DateField(BaseField):
     """Date input field."""
 
     type: Literal[FieldType.DATE] = FieldType.DATE
-    min_date: Annotated[
-        date | None, Field(default=None, description="Earliest allowed date")
-    ]
-    max_date: Annotated[
-        date | None, Field(default=None, description="Latest allowed date")
-    ]
+    min_date: Annotated[date | None, Field(None, description="Earliest allowed date")]
+    max_date: Annotated[date | None, Field(None, description="Latest allowed date")]
 
     @model_validator(mode="after")
     def validate_date_constraints(self) -> "DateField":
@@ -233,15 +225,9 @@ class NumberField(BaseField):
     """Numeric input field."""
 
     type: Literal[FieldType.NUMBER] = FieldType.NUMBER
-    min_value: Annotated[
-        float | None, Field(default=None, description="Minimum allowed value")
-    ]
-    max_value: Annotated[
-        float | None, Field(default=None, description="Maximum allowed value")
-    ]
-    precision: Annotated[
-        PositiveInt, Field(default=2, description="Number of decimal places")
-    ]
+    min_value: Annotated[float | None, Field(None, description="Minimum allowed value")]
+    max_value: Annotated[float | None, Field(None, description="Maximum allowed value")]
+    precision: Annotated[PositiveInt, Field(2, description="Number of decimal places")]
 
     @model_validator(mode="after")
     def validate_range_constraints(self) -> "NumberField":
