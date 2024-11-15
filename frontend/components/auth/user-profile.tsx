@@ -20,6 +20,7 @@ import {
 interface UserProfileProps {
   user: User;
   open: boolean;
+  setIsOpen: (open: boolean) => void;
   onOpenChange: (open: boolean) => void;
   onUpdateUser: (update: Partial<User>) => Promise<void>;
 }
@@ -27,6 +28,7 @@ interface UserProfileProps {
 export default function UserProfile({
   user,
   open,
+  setIsOpen,
   onOpenChange,
   onUpdateUser,
 }: UserProfileProps) {
@@ -37,6 +39,11 @@ export default function UserProfile({
       setIsEditing(false);
     }
     onOpenChange(open);
+  };
+
+  const handleOnSave = async (update: Partial<User>) => {
+    await onUpdateUser(update);
+    setIsOpen(false);
   };
 
   return (
@@ -51,7 +58,7 @@ export default function UserProfile({
           </ResponsiveModalDescription>
         </ResponsiveModalHeader>
         {isEditing ? (
-          <EditProfile user={user} onSave={onUpdateUser} />
+          <EditProfile user={user} onSave={handleOnSave} />
         ) : (
           <ViewProfile user={user} onEdit={() => setIsEditing(true)} />
         )}
