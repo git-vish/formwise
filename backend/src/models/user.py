@@ -1,12 +1,15 @@
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Annotated, Optional
+from typing import TYPE_CHECKING, Annotated
 from uuid import uuid4
 
-from beanie import Document, Indexed
+from beanie import BackLink, Document, Indexed
 from pydantic import BaseModel, EmailStr, Field, HttpUrl
 
 from src.utils.types import Name, Password
+
+if TYPE_CHECKING:  # pragma: no cover
+    from src.models.form import Form
 
 
 class AuthProvider(StrEnum):
@@ -32,17 +35,9 @@ class User(Document):
     is_active: bool = False  # TODO: add email verification
     created_at: Annotated[datetime, Field(default_factory=lambda: datetime.now(tz=UTC))]
 
-    @classmethod
-    async def get_by_email(cls, email: EmailStr) -> Optional["User"]:
-        """Fetches a user by email.
-
-        Args:
-            email (EmailStr): Email of the user.
-
-        Returns:
-            Optional[User]: User instance if found, None otherwise.
-        """
-        return await cls.find_one(cls.email == email)
+    forms: Annotated[
+        list[BackLink["Form"]], Field(json_schema_extra={"original_field": "creator"})
+    ]
 
     def __repr__(self) -> str:
         return f"<User {self.email}>"

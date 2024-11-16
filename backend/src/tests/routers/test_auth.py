@@ -13,10 +13,12 @@ from pydantic_core import Url
 
 from src.models.user import AuthProvider, User
 from src.tests.data import TEST_USER_DATA
-from src.utils.security import get_current_user
+from src.utils.security import CurrentUser
 
 fake = Faker()
 BASE_URL = "/api/v1/auth"
+
+get_current_user = CurrentUser()
 
 
 @pytest.mark.anyio

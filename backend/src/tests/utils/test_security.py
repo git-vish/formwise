@@ -8,8 +8,8 @@ from fastapi.security import HTTPAuthorizationCredentials
 from src.config import settings
 from src.exceptions import AuthenticationError
 from src.utils.security import (
+    CurrentUser,
     create_access_token,
-    get_current_user,
     get_password_hash,
     verify_password,
 )
@@ -59,13 +59,15 @@ class TestTokenGeneration:
 
 
 @pytest.mark.anyio
-class TestGetCurrentUser:
+class TestCurrentUser:
+    current_user = CurrentUser()
+
     async def test_valid_token(self, test_user, valid_token):
         """Tests that valid token retrieves the correct user."""
         credentials = HTTPAuthorizationCredentials(
             scheme="Bearer", credentials=valid_token
         )
-        retrieved_user = await get_current_user(credentials)
+        retrieved_user = await self.current_user(credentials)
         assert retrieved_user.email == test_user.email
 
     async def test_expired_token(self, expired_token):
@@ -74,7 +76,7 @@ class TestGetCurrentUser:
             scheme="Bearer", credentials=expired_token
         )
         with pytest.raises(AuthenticationError):
-            await get_current_user(credentials)
+            await self.current_user(credentials)
 
     async def test_invalid_token(self):
         """Tests that invalid token raises exception."""
@@ -82,7 +84,7 @@ class TestGetCurrentUser:
             scheme="Bearer", credentials="invalid_token"
         )
         with pytest.raises(AuthenticationError):
-            await get_current_user(credentials)
+            await self.current_user(credentials)
 
     async def test_user_not_found(self):
         """Tests that exception is raised if the user is not found."""
@@ -90,7 +92,7 @@ class TestGetCurrentUser:
             scheme="Bearer", credentials=create_access_token(email=fake.email())
         )
         with pytest.raises(AuthenticationError):
-            await get_current_user(credentials)
+            await self.current_user(credentials)
 
     async def test_missing_token_sub(self):
         """Tests that exception is raised if the token 'sub' is missing."""
@@ -99,4 +101,4 @@ class TestGetCurrentUser:
         )
         credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
         with pytest.raises(AuthenticationError):
-            await get_current_user(credentials)
+            await self.current_user(credentials)

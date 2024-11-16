@@ -1,10 +1,10 @@
 import logging
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Response, status
 
-from src.models.user import User, UserProfile, UserUpdate
-from src.utils.security import get_current_user, get_password_hash, verify_password
+from src.dependencies import CurrentUser
+from src.models.user import UserProfile, UserUpdate
+from src.utils.security import get_password_hash, verify_password
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     response_model=UserProfile,
     status_code=status.HTTP_200_OK,
 )
-async def profile(user: Annotated[User, Depends(get_current_user)]):
+async def profile(user: CurrentUser):
     """Fetches the current authenticated user's profile information."""
     return user
 
@@ -26,9 +26,7 @@ async def profile(user: Annotated[User, Depends(get_current_user)]):
     response_model=UserProfile | None,
     status_code=status.HTTP_200_OK,
 )
-async def update_profile(
-    update: UserUpdate, user: Annotated[User, Depends(get_current_user)]
-):
+async def update_profile(update: UserUpdate, user: CurrentUser):
     """Updates the current authenticated user's profile information."""
     logger.info("Updating profile for user: %s", user)
 

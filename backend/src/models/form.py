@@ -1,13 +1,16 @@
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 from beanie import Document, Link
 from pydantic import BaseModel, Field, field_validator
 
 from src.models.field import FormField
-from src.models.user import User, UserPublic
+from src.models.user import UserPublic
 from src.utils import generate_unique_id
 from src.utils.types import Description, Title
+
+if TYPE_CHECKING:  # pragma: no cover
+    from src.models.user import User
 
 
 class FormCreate(BaseModel):
@@ -43,7 +46,7 @@ class Form(Document, FormCreate):
 
     id: Annotated[str, Field(default_factory=generate_unique_id)]
     is_active: bool = True
-    created_by: Link[User]
+    creator: Link["User"]
     created_at: Annotated[datetime, Field(default_factory=lambda: datetime.now(tz=UTC))]
 
 
@@ -64,5 +67,5 @@ class FormRead(BaseModel):
     description: Description | None
     fields: list[FormField]
     is_active: bool
-    created_by: UserPublic
+    creator: UserPublic
     created_at: datetime
