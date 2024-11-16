@@ -138,9 +138,9 @@ class SelectionBase(BaseModel):
 
     @field_validator("options")
     @classmethod
-    def options_must_be_unique(cls, value: list[Option]) -> list[Option]:
+    def ensure_unique_options(cls, options: list[Option]) -> list[Option]:
         """Ensures all options are unique."""
-        return list(set(value))
+        return list(set(options))
 
     def validate_single_choice(self, answer: str) -> str:
         if answer not in set(self.options):

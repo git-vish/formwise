@@ -149,7 +149,7 @@ class TestSelectionBase:
         with pytest.raises(ValidationError):
             SelectionBase(options=options)
 
-    def test_selection_base_duplicate_options(self):
+    def test_ensure_unique_options(self):
         """Tests that duplicate options are reduced to unique values."""
         base = SelectionBase(options=["Option1", "Option1"])
         assert base.options == ["Option1"]
