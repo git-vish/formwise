@@ -34,7 +34,7 @@ async def register(user: UserCreate):
     """
     logger.info("Registering user: %s", user.email)
 
-    if await User.get_by_email(email=user.email):
+    if await User.find_one(User.email == user.email):
         raise EntityAlreadyExistsError("User with this email already exists.")
 
     hashed_password = get_password_hash(user.password.get_secret_value())
@@ -66,7 +66,7 @@ async def authenticate_user(email: str, password: str) -> User:
         BadRequestError: If user is authenticated with Google.
         AuthenticationError: If authentication fails.
     """
-    user = await User.get_by_email(email=email)
+    user = await User.find_one(User.email == email)
 
     if not user:
         raise EntityNotFoundError("User not found.")
@@ -122,7 +122,7 @@ async def google_auth_callback(request: Request, state: AnyHttpUrl):
         )
 
     logger.info("Google callback succeeded for: %s", google_user.email)
-    user = await User.get_by_email(email=google_user.email)
+    user = await User.find_one(User.email == google_user.email)
     updated = False
 
     if not user:

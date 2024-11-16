@@ -61,29 +61,44 @@ def create_access_token(email: str) -> str:
     )
 
 
-async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(http_scheme)],
-) -> User:
-    """Decodes JWT token and retrieves current user.
-
-    Args:
-        credentials: Bearer token credentials from request.
-
-    Returns:
-        User: Current user.
-
-    Raises:
-        HTTPException: If the token is invalid or user not found.
+class CurrentUser:
     """
-    token = credentials.credentials
-    try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
-        )
-    except jwt.PyJWTError as err:
-        raise AuthenticationError("Could not validate credentials.") from err
+    Dependency to fetch the current authenticated user.
 
-    if (email := payload.get("sub")) and (user := await User.get_by_email(email)):
-        return user
+    Attributes:
+        fetch_links (bool): Whether to fetch linked documents in the User model.
+    """
 
-    raise AuthenticationError("Could not validate credentials.")
+    def __init__(self, fetch_links: bool = False):
+        self.fetch_links = fetch_links
+
+    async def __call__(
+        self, credentials: Annotated[HTTPAuthorizationCredentials, Depends(http_scheme)]
+    ) -> User:
+        """Validates JWT token and retrieves the user.
+
+        Args:
+            credentials: Bearer token credentials from request.
+
+        Returns:
+            User: The authenticated user.
+
+        Raises:
+            HTTPException: If the token is invalid or user not found.
+        """
+        token = credentials.credentials
+        try:
+            payload = jwt.decode(
+                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            )
+        except jwt.PyJWTError as err:
+            raise AuthenticationError("Could not validate credentials.") from err
+
+        if (email := payload.get("sub")) and (
+            user := await User.find_one(
+                User.email == email, fetch_links=self.fetch_links
+            )
+        ):
+            return user
+
+        raise AuthenticationError("Could not validate credentials.")

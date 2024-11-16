@@ -40,4 +40,4 @@ def configure_logging() -> None:
                 },
             },
         }
-    )
+    )  # pragma: no cover
