@@ -30,7 +30,7 @@ class User(Document):
     hashed_password: str | None = None
     auth_provider: AuthProvider
     is_active: bool = False  # TODO: add email verification
-    created_at: datetime = datetime.now(tz=UTC)
+    created_at: Annotated[datetime, Field(default_factory=lambda: datetime.now(tz=UTC))]
 
     @classmethod
     async def get_by_email(cls, email: EmailStr) -> Optional["User"]:
@@ -83,3 +83,11 @@ class UserUpdate(BaseModel):
     first_name: Name | None = None
     last_name: Name | None = None
     password: Password | None = None
+
+
+class UserPublic(BaseModel):
+    """Response model for user public profile."""
+
+    first_name: Name
+    last_name: Name
+    email: EmailStr

@@ -118,6 +118,12 @@ class TestUserProfileUpdate:
             ("password", "short"),
             ("password", "a" * 256),
         ],
+        ids=[
+            "first_name_too_long",
+            "last_name_empty",
+            "password_too_short",
+            "password_too_long",
+        ],
     )
     async def test_update_profile_invalid_fields(
         self,

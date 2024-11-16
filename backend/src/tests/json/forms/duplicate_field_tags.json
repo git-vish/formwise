@@ -1,0 +1,8 @@
+{
+    "title": "Form",
+    "description": "Form with duplicate tags",
+    "fields": [
+        {"type": "text", "tag": "field1", "label": "Field 1"},
+        {"type": "text", "tag": "field1", "label": "Field 2"}
+    ]
+}

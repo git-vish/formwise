@@ -87,6 +87,7 @@ class TestRegistration:
     @pytest.mark.parametrize(
         "password",
         ["short", "a" * 256, "", None],
+        ids=["short", "long", "empty", "none"],
     )
     async def test_register_invalid_password(self, client: AsyncClient, password):
         """Tests registration failure with invalid password."""
@@ -104,6 +105,7 @@ class TestRegistration:
     @pytest.mark.parametrize(
         "first_name, last_name",
         [("a" * 256, "b"), ("a", "b" * 256), ("", ""), (None, None)],
+        ids=["first_name", "last_name", "empty", "none"],
     )
     async def test_register_invalid_fields(
         self, client: AsyncClient, first_name: str, last_name: str

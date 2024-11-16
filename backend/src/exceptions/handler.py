@@ -2,6 +2,8 @@ import logging
 from collections.abc import Callable
 
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
 from src.exceptions import (
@@ -15,13 +17,13 @@ from src.exceptions import (
 logger = logging.getLogger(__name__)
 
 # Type alias for exception handler function
-ExceptionHandler = Callable[[Request, FormwiseError], JSONResponse]
+FormwiseExceptionHandler = Callable[[Request, FormwiseError], JSONResponse]
 
 
-def create_exception_handler(
+def create_formwise_exception_handler(
     status_code: int, default_message: str
-) -> ExceptionHandler:
-    """Creates exception handler function for FastAPI application."""
+) -> FormwiseExceptionHandler:
+    """Creates exception handler function for FormwiseError exceptions."""
 
     async def exception_handler(_: Request, exc: FormwiseError) -> JSONResponse:
         message = default_message if exc.message is None else exc.message
@@ -32,7 +34,7 @@ def create_exception_handler(
 
 
 # Exception handler configuration mapping
-EXCEPTION_HANDLERS = {
+FORMWISE_EXCEPTION_HANDLERS = {
     EntityNotFoundError: {
         "status_code": status.HTTP_404_NOT_FOUND,
         "message": "Entity does not exist.",
@@ -52,16 +54,33 @@ EXCEPTION_HANDLERS = {
 }
 
 
+async def validation_exception_handler(_: Request, exc: RequestValidationError):
+    filtered_errors = [
+        error for error in exc.errors() if error.get("type") != "literal_error"
+    ]
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": filtered_errors}),
+    )
+
+
 def add_exception_handlers(app: FastAPI) -> None:
     """Add exception handlers to the FastAPI application.
 
     Args:
         app: FastAPI application instance.
     """
-    for exception_class, config in EXCEPTION_HANDLERS.items():
+    # FormwiseError exception handlers
+    for exception_class, config in FORMWISE_EXCEPTION_HANDLERS.items():
         app.add_exception_handler(
             exc_class_or_status_code=exception_class,
-            handler=create_exception_handler(
+            handler=create_formwise_exception_handler(
                 status_code=config["status_code"], default_message=config["message"]
             ),
         )
+
+    # Validation exception handler
+    app.add_exception_handler(
+        exc_class_or_status_code=RequestValidationError,
+        handler=validation_exception_handler,
+    )
