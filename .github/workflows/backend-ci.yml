@@ -3,14 +3,8 @@ name: Backend CI
 on:
   push:
     branches: ["main"]
-    paths:
-      - "backend/**"
-      - ".github/workflows/backend-ci.yml"
   pull_request:
-    branches: ["main"]
-    paths:
-      - "backend/**"
-      - ".github/workflows/backend-ci.yml"
+    branches: ["main", "development"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,6 +14,9 @@ jobs:
   backend-ci:
     name: Backend CI
     runs-on: ubuntu-latest
+    permissions:
+      checks: write
+      pull-requests: read
 
     defaults:
       run:
@@ -28,24 +25,43 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - "backend/**"
+              - ".github/workflows/backend-ci.yml"
+
+      - name: Skip backend CI
+        if: steps.filter.outputs.backend != 'true'
+        run: |
+          echo "No changes detected in backend - skipping backend CI"
+          exit 0
+
       - name: Install uv
+        if: steps.filter.outputs.backend == 'true'
         uses: astral-sh/setup-uv@v3
         with:
           version: "0.4.19"
           enable-cache: true
 
       - name: Set up Python
+        if: steps.filter.outputs.backend == 'true'
         uses: actions/setup-python@v5
         with:
           python-version-file: "./backend/.python-version"
 
       - name: Install dependencies
+        if: steps.filter.outputs.backend == 'true'
         run: uv sync --all-extras --dev
 
       - name: Run Ruff
+        if: steps.filter.outputs.backend == 'true'
         run: uv run ruff check --output-format=github .
 
       - name: Run tests
+        if: steps.filter.outputs.backend == 'true'
         env:
           MONGO_CONNECTION_STRING: ${{ secrets.MONGO_CONNECTION_STRING }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
@@ -53,7 +69,8 @@ jobs:
         run: uv run pytest -n auto --cov=src --cov-report=xml
 
       - name: Upload coverage to Codecov
+        if: steps.filter.outputs.backend == 'true'
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          codecov_yml_path: ./backend/.codecov.yml
+          codecov_yml_path: "./backend/.codecov.yml"
