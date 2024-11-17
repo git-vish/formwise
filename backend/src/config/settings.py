@@ -29,6 +29,11 @@ class Settings(BaseSettings):
     # *** Logfire settings ***
     LOGFIRE_TOKEN: str = ""
 
+    # *** Form settings ***
+    MAX_FORMS: int = 5  # per user
+    MAX_FIELDS: int = 50
+    MAX_SUBMISSIONS: int = 150  # per form
+
     @property
     def allowed_origins(self) -> list[str]:
         """Returns a list of allowed origins."""
