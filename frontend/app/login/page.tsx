@@ -63,6 +63,7 @@ export default function LoginPage() {
                     placeholder="m@example.com"
                     type="email"
                     autoComplete="email"
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -88,6 +89,7 @@ export default function LoginPage() {
                   <PasswordInput
                     id="password"
                     autoComplete="current-password"
+                    disabled={isSubmitting}
                     {...field}
                   />
                 </FormControl>
@@ -95,8 +97,8 @@ export default function LoginPage() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full">
-            Login
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {form.formState.isSubmitting ? "Logging in..." : "Login"}
           </Button>
         </form>
       </Form>

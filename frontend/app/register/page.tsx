@@ -5,13 +5,21 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { RegisterFormValues, registerSchema } from "@/lib/schemas";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { PasswordInput } from "@/components/ui/password-input";
 
 export default function RegisterPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -19,6 +27,13 @@ export default function RegisterPage() {
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
+    defaultValues: {
+      email: "",
+      first_name: "",
+      last_name: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const isSubmitting = form.formState.isSubmitting || googleLoading;
@@ -42,86 +57,120 @@ export default function RegisterPage() {
       title="Create an account"
       description="Enter your details below to create your account"
     >
-      <form onSubmit={form.handleSubmit(handleRegister)} className="grid gap-4">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="firstName">First name</Label>
-            <Input
-              id="firstName"
-              placeholder="Vishwajeet"
-              disabled={isSubmitting}
-              {...form.register("first_name")}
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleRegister)}
+          className="grid gap-4"
+        >
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="first_name"
+              render={({ field }) => (
+                <FormItem className="grid gap-2">
+                  <FormLabel htmlFor="firstName">First name</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="firstName"
+                      placeholder="Vishwajeet"
+                      autoComplete="given-name"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.first_name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.first_name.message}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="lastName">Last name</Label>
-            <Input
-              id="lastName"
-              placeholder="Ghatage"
-              disabled={isSubmitting}
-              {...form.register("last_name")}
+            <FormField
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <FormItem className="grid gap-2">
+                  <FormLabel htmlFor="lastName">Last name</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="lastName"
+                      placeholder="Ghatage"
+                      autoComplete="family-name"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {form.formState.errors.last_name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.last_name.message}
-              </p>
-            )}
           </div>
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            disabled={isSubmitting}
-            {...form.register("email")}
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="m@example.com"
+                    autoComplete="email"
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {form.formState.errors.email && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.email.message}
-            </p>
-          )}
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            disabled={isSubmitting}
-            {...form.register("password")}
+
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="password">Password</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    id="password"
+                    autoComplete="new-password"
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {form.formState.errors.password && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.password.message}
-            </p>
-          )}
-        </div>
-        <div className="grid gap-2">
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            disabled={isSubmitting}
-            {...form.register("confirmPassword")}
+
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="confirmPassword">
+                  Confirm Password
+                </FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    id="confirmPassword"
+                    autoComplete="new-password"
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {form.formState.errors.confirmPassword && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {form.formState.isSubmitting
-            ? "Creating account..."
-            : "Create account"}
-        </Button>
-      </form>
+
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {form.formState.isSubmitting
+              ? "Creating account..."
+              : "Create account"}
+          </Button>
+        </form>
+      </Form>
 
       <GoogleAuthButton
         isLoading={googleLoading}
