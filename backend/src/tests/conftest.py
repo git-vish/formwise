@@ -28,7 +28,7 @@ def anyio_backend():
 @pytest.fixture(autouse=True)
 async def database() -> AsyncGenerator:
     """Sets and cleans up the test database."""
-    client = AsyncIOMotorClient(settings.MONGO_CONNECTION_STRING.unicode_string())
+    client = AsyncIOMotorClient(settings.MONGO_URI.unicode_string())
     db = client[TEST_DATABASE_NAME]
     await init_beanie(database=db, document_models=DOCUMENT_MODELS)
     yield
@@ -82,7 +82,7 @@ async def valid_token(test_user: User) -> str:
 @pytest.fixture
 async def expired_token(test_user: User) -> str:
     """Creates an expired JWT token."""
-    with mock.patch.object(settings, "JWT_ACCESS_TOKEN_EXP", -1):
+    with mock.patch.object(settings, "JWT_EXPIRATION_MINUTES", -1):
         return create_access_token(test_user.email)
 
 

@@ -35,7 +35,7 @@ class TestTokenGeneration:
         email = fake.email()
         token = create_access_token(email)
         payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
 
         assert payload["sub"] == email
@@ -47,14 +47,14 @@ class TestTokenGeneration:
         email = fake.email()
         token = create_access_token(email)
         payload = jwt.decode(
-            token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
         )
 
         exp_delta = datetime.fromtimestamp(payload["exp"], UTC) - datetime.now(UTC)
         assert (
-            timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXP - 1)
+            timedelta(minutes=settings.JWT_EXPIRATION_MINUTES - 1)
             < exp_delta
-            < timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXP + 1)
+            < timedelta(minutes=settings.JWT_EXPIRATION_MINUTES + 1)
         )
 
 
@@ -96,9 +96,7 @@ class TestCurrentUser:
 
     async def test_missing_token_sub(self):
         """Tests that exception is raised if the token 'sub' is missing."""
-        token = jwt.encode(
-            {}, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
-        )
+        token = jwt.encode({}, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
         credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
         with pytest.raises(AuthenticationError):
             await self.current_user(credentials)
