@@ -5,13 +5,21 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { GoogleAuthButton } from "@/components/auth/google-auth-button";
 import { LoginFormValues, loginSchema } from "@/lib/schemas";
 import { useAuth } from "@/hooks/use-auth";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
@@ -19,6 +27,10 @@ export default function LoginPage() {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
   const isSubmitting = form.formState.isSubmitting || googleLoading;
@@ -37,46 +49,59 @@ export default function LoginPage() {
       title="Login"
       description="Enter your email below to login to your account"
     >
-      <form onSubmit={form.handleSubmit(handleLogin)} className="grid gap-4">
-        <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="m@example.com"
-            disabled={isSubmitting}
-            {...form.register("email")}
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleLogin)} className="grid gap-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="email">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    id="email"
+                    placeholder="m@example.com"
+                    type="email"
+                    autoComplete="email"
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {form.formState.errors.email && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.email.message}
-            </p>
-          )}
-        </div>
-        <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <Link href="#" className="ml-auto inline-block text-sm underline">
-              Forgot password?
-            </Link>
-          </div>
-          <Input
-            id="password"
-            type="password"
-            disabled={isSubmitting}
-            {...form.register("password")}
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <div className="flex justify-between items-center">
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                  <Link
+                    href="#"
+                    className="ml-auto inline-block text-sm underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <FormControl>
+                  <PasswordInput
+                    id="password"
+                    autoComplete="current-password"
+                    disabled={isSubmitting}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {form.formState.errors.password && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.password.message}
-            </p>
-          )}
-        </div>
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {form.formState.isSubmitting ? "Logging in..." : "Login"}
-        </Button>
-      </form>
-
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {form.formState.isSubmitting ? "Logging in..." : "Login"}
+          </Button>
+        </form>
+      </Form>
       <GoogleAuthButton
         isLoading={googleLoading}
         onClick={handleGoogleLogin}

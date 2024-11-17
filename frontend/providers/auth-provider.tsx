@@ -105,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(() => {
     tokenService.token.remove();
     queryClient.clear();
-    router.push("/login");
+    router.replace("/login");
   }, [queryClient, router]);
 
   const updateUserMutation = useMutation({
@@ -166,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       register,
       logout,
       signInWithGoogle,
+      updateUser,
       refreshUser,
     ]
   );
