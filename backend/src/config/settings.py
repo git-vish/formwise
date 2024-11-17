@@ -11,16 +11,16 @@ class Settings(BaseSettings):
     APP_TITLE: str = "Formwise"
     APP_DESCRIPTION: str = "Formwise Description"
     APP_VERSION: str = "0.1.0"
-    APP_ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_ORIGINS: str = "http://localhost:3000"
 
     # *** MongoDB settings ***
-    MONGO_CONNECTION_STRING: MongoDsn
-    MONGO_DATABASE_NAME: str = "formwise"
+    MONGO_URI: MongoDsn
+    MONGO_DB_NAME: str = "formwise"
 
     # *** JWT settings ***
-    JWT_SECRET_KEY: str = "secret"
+    JWT_SECRET: str = "secret"
     JWT_ALGORITHM: str = "HS256"
-    JWT_ACCESS_TOKEN_EXP: int = 60  # 1 hour
+    JWT_EXPIRATION_MINUTES: int = 60  # 1 hour
 
     # *** Google OAuth settings ***
     GOOGLE_CLIENT_ID: str
@@ -29,10 +29,15 @@ class Settings(BaseSettings):
     # *** Logfire settings ***
     LOGFIRE_TOKEN: str = ""
 
+    # *** Form settings ***
+    MAX_FORMS: int = 5  # per user
+    MAX_FIELDS: int = 50
+    MAX_SUBMISSIONS: int = 150  # per form
+
     @property
     def allowed_origins(self) -> list[str]:
         """Returns a list of allowed origins."""
-        return [origin.strip() for origin in self.APP_ALLOWED_ORIGINS.split(",")]
+        return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
 
 settings = Settings()

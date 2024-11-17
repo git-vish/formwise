@@ -32,9 +32,9 @@ async def lifespan(app: FastAPI):
         logfire.instrument_pymongo()
 
     # Initialize MongoDB connection
-    app.state.db = AsyncIOMotorClient(
-        settings.MONGO_CONNECTION_STRING.unicode_string()
-    )[settings.MONGO_DATABASE_NAME]
+    app.state.db = AsyncIOMotorClient(settings.MONGO_URI.unicode_string())[
+        settings.MONGO_DB_NAME
+    ]
 
     # Initialize Beanie
     await init_beanie(database=app.state.db, document_models=DOCUMENT_MODELS)

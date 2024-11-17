@@ -53,11 +53,11 @@ def create_access_token(email: str) -> str:
     """
     payload = {
         "sub": email,
-        "exp": datetime.now(UTC) + timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXP),
+        "exp": datetime.now(UTC) + timedelta(minutes=settings.JWT_EXPIRATION_MINUTES),
         "iat": datetime.now(UTC),
     }
     return jwt.encode(
-        payload=payload, key=settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM
+        payload=payload, key=settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM
     )
 
 
@@ -89,7 +89,7 @@ class CurrentUser:
         token = credentials.credentials
         try:
             payload = jwt.decode(
-                token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM]
+                token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
             )
         except jwt.PyJWTError as err:
             raise AuthenticationError("Could not validate credentials.") from err

@@ -63,7 +63,7 @@ jobs:
       - name: Run tests
         if: steps.filter.outputs.backend == 'true'
         env:
-          MONGO_CONNECTION_STRING: ${{ secrets.MONGO_CONNECTION_STRING }}
+          MONGO_URI: ${{ secrets.MONGO_CONNECTION_STRING }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: uv run pytest -n auto --cov=src --cov-report=xml
