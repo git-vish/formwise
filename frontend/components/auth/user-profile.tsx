@@ -6,7 +6,14 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { EditProfileFormValues, editProfileSchema } from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Label } from "../ui/label";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "../ui/input";
 import {
   ResponsiveModal,
@@ -16,6 +23,7 @@ import {
   ResponsiveModalTitle,
   ResponsiveModalFooter,
 } from "@/components/ui/responsive-modal";
+import { PasswordInput } from "../ui/password-input";
 
 interface UserProfileProps {
   user: User;
@@ -139,70 +147,90 @@ function EditProfile({ user, onSave }: EditProfileProps) {
   };
 
   return (
-    <>
+    <Form {...form}>
       <form
         className="space-y-4 py-4"
         onSubmit={form.handleSubmit(handleEditProfile)}
       >
         <div className="grid grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label htmlFor="firstName">First name</Label>
-            <Input
-              id="firstName"
-              placeholder="First name"
-              {...form.register("first_name")}
-            />
-            {form.formState.errors.first_name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.first_name.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="firstName">First name</FormLabel>
+                <FormControl>
+                  <Input
+                    id="firstName"
+                    placeholder="First name"
+                    autoComplete="given-name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="lastName">Last name</Label>
-            <Input
-              id="lastName"
-              placeholder="Last name"
-              {...form.register("last_name")}
-            />
-            {form.formState.errors.last_name && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.last_name.message}
-              </p>
+          />
+          <FormField
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="lastName">Last name</FormLabel>
+                <FormControl>
+                  <Input
+                    id="lastName"
+                    placeholder="Last name"
+                    autoComplete="family-name"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
         </div>
 
-        <div className="grid gap-2">
-          <Label htmlFor="password">New Password</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Leave blank to keep current password"
-            {...form.register("password")}
-          />
-          {form.formState.errors.password && (
-            <p className="text-sm text-destructive">
-              {form.formState.errors.password.message}
-            </p>
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem className="grid gap-2">
+              <FormLabel htmlFor="password">New Password</FormLabel>
+              <FormControl>
+                <PasswordInput
+                  id="password"
+                  placeholder="Leave blank to keep current password"
+                  autoComplete="new-password"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
           )}
-        </div>
+        />
 
         {password && (
-          <div className="grid gap-2">
-            <Label htmlFor="confirmPassword">Confirm New Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              placeholder="Confirm your new password"
-              {...form.register("confirmPassword")}
-            />
-            {form.formState.errors.confirmPassword && (
-              <p className="text-sm text-destructive">
-                {form.formState.errors.confirmPassword.message}
-              </p>
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="confirmPassword">
+                  Confirm New Password
+                </FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    id="confirmPassword"
+                    placeholder="Confirm your new password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
             )}
-          </div>
+          />
         )}
 
         <Button
@@ -214,6 +242,6 @@ function EditProfile({ user, onSave }: EditProfileProps) {
           {form.formState.isSubmitting ? "Saving..." : "Save"}
         </Button>
       </form>
-    </>
+    </Form>
   );
 }
