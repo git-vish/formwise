@@ -66,16 +66,19 @@ class CurrentUser:
     Dependency to fetch the current authenticated user.
 
     Attributes:
+        optional (bool): Whether authentication is optional.
         fetch_links (bool): Whether to fetch linked documents in the User model.
     """
 
-    def __init__(self, fetch_links: bool = False):
+    def __init__(self, optional: bool = False, fetch_links: bool = False):
+        self.optional = optional
         self.fetch_links = fetch_links
 
     async def __call__(
         self, credentials: Annotated[HTTPAuthorizationCredentials, Depends(http_scheme)]
-    ) -> User:
+    ) -> User | None:
         """Validates JWT token and retrieves the user.
+        If `optional` is True, returns None if the token is not present.
 
         Args:
             credentials: Bearer token credentials from request.
@@ -87,6 +90,10 @@ class CurrentUser:
             HTTPException: If the token is invalid or user not found.
         """
         token = credentials.credentials
+
+        if self.optional and not token:
+            return
+
         try:
             payload = jwt.decode(
                 token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]

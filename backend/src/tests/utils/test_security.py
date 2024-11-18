@@ -61,6 +61,7 @@ class TestTokenGeneration:
 @pytest.mark.anyio
 class TestCurrentUser:
     current_user = CurrentUser()
+    optional_current_user = CurrentUser(optional=True)
 
     async def test_valid_token(self, test_user, valid_token):
         """Tests that valid token retrieves the correct user."""
@@ -94,9 +95,33 @@ class TestCurrentUser:
         with pytest.raises(AuthenticationError):
             await self.current_user(credentials)
 
+    async def test_missing_token(self):
+        """Tests that exception is raised if the token is missing."""
+        credentials = HTTPAuthorizationCredentials(scheme="", credentials="")
+        with pytest.raises(AuthenticationError):
+            await self.current_user(credentials)
+
     async def test_missing_token_sub(self):
         """Tests that exception is raised if the token 'sub' is missing."""
         token = jwt.encode({}, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
         credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
         with pytest.raises(AuthenticationError):
             await self.current_user(credentials)
+
+    async def test_optional_current_user(self):
+        """Tests that optional current user returns None if the token is missing."""
+        assert (
+            await self.optional_current_user(
+                HTTPAuthorizationCredentials(scheme="", credentials="")
+            )
+            is None
+        )
+
+    async def test_optional_current_user_with_token(self, test_user, valid_token):
+        """Tests that optional current user retrieves the correct user
+        if the token is present."""
+        credentials = HTTPAuthorizationCredentials(
+            scheme="Bearer", credentials=valid_token
+        )
+        retrieved_user = await self.optional_current_user(credentials)
+        assert retrieved_user.email == test_user.email
