@@ -2,8 +2,10 @@ import logging
 
 from fastapi import APIRouter, HTTPException, status
 
+from src.config import settings
 from src.dependencies import CurrentUserWithLinks, OptionalCurrentUserWithLinks
-from src.models.form import FormCreate, FormRead, FormReadPublic, FormUpdate
+from src.exceptions import BadRequestError, ForbiddenError
+from src.models.form import Form, FormCreate, FormRead, FormReadPublic, FormUpdate
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +19,23 @@ router = APIRouter(prefix="/forms", tags=["Forms"])
 )
 async def create_form(form: FormCreate, user: CurrentUserWithLinks):
     """Creates a new form."""
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    # Check if user has reached form limit
+    forms_count = len(user.forms)
+    if forms_count > settings.MAX_FORMS:
+        raise ForbiddenError(f"Maximum number of forms ({settings.MAX_FORMS}) reached.")
+
+    # Check fields limit
+    if len(form.fields) > settings.MAX_FIELDS:
+        raise BadRequestError(
+            f"Maximum number of fields ({settings.MAX_FIELDS}) exceeded."
+        )
+
+    # Create form
+    new_form = Form(**form.model_dump(), creator=user)
+    await new_form.create()
+
+    logger.info('Created Form: "%s" for User: %s', new_form.title, user)
+    return new_form
 
 
 @router.get(
