@@ -8,13 +8,13 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import AuthenticationError
+from src.exceptions import AuthenticationError, ForbiddenError
 from src.models.user import User
 
 logger = logging.getLogger(__name__)
 
 PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
-http_scheme = HTTPBearer()
+http_scheme = HTTPBearer(auto_error=False)
 
 
 def get_password_hash(password: str) -> str:
@@ -75,7 +75,10 @@ class CurrentUser:
         self.fetch_links = fetch_links
 
     async def __call__(
-        self, credentials: Annotated[HTTPAuthorizationCredentials, Depends(http_scheme)]
+        self,
+        credentials: Annotated[
+            HTTPAuthorizationCredentials | None, Depends(http_scheme)
+        ],
     ) -> User | None:
         """Validates JWT token and retrieves the user.
         If `optional` is True, returns None if the token is not present.
@@ -89,10 +92,12 @@ class CurrentUser:
         Raises:
             HTTPException: If the token is invalid or user not found.
         """
-        token = credentials.credentials
+        if not credentials:
+            if self.optional:
+                return
+            raise ForbiddenError()
 
-        if self.optional and not token:
-            return
+        token = credentials.credentials
 
         try:
             payload = jwt.decode(

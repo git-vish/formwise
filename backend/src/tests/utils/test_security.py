@@ -6,7 +6,7 @@ from faker import Faker
 from fastapi.security import HTTPAuthorizationCredentials
 
 from src.config import settings
-from src.exceptions import AuthenticationError
+from src.exceptions import AuthenticationError, ForbiddenError
 from src.utils.security import (
     CurrentUser,
     create_access_token,
@@ -97,9 +97,8 @@ class TestCurrentUser:
 
     async def test_missing_token(self):
         """Tests that exception is raised if the token is missing."""
-        credentials = HTTPAuthorizationCredentials(scheme="", credentials="")
-        with pytest.raises(AuthenticationError):
-            await self.current_user(credentials)
+        with pytest.raises(ForbiddenError):
+            await self.current_user(None)
 
     async def test_missing_token_sub(self):
         """Tests that exception is raised if the token 'sub' is missing."""
@@ -110,12 +109,7 @@ class TestCurrentUser:
 
     async def test_optional_current_user(self):
         """Tests that optional current user returns None if the token is missing."""
-        assert (
-            await self.optional_current_user(
-                HTTPAuthorizationCredentials(scheme="", credentials="")
-            )
-            is None
-        )
+        assert await self.optional_current_user(None) is None
 
     async def test_optional_current_user_with_token(self, test_user, valid_token):
         """Tests that optional current user retrieves the correct user

@@ -11,7 +11,7 @@ from starlette.middleware.cors import CORSMiddleware
 from src.config import configure_logging, settings
 from src.exceptions.handler import add_exception_handlers
 from src.models import DOCUMENT_MODELS
-from src.routers import auth, user
+from src.routers import auth, form, user
 
 logger = logging.getLogger(__name__)
 
@@ -83,5 +83,6 @@ async def ping():
 api_v1_router = APIRouter()
 api_v1_router.include_router(auth.router)
 api_v1_router.include_router(user.router)
+api_v1_router.include_router(form.router)
 
 app.include_router(api_v1_router, prefix="/api/v1")
