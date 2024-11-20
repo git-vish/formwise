@@ -29,8 +29,8 @@ google_sso = GoogleSSO(
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 async def register(user: UserCreate):
-    """Registers a new user with an email and password
-    and returns a JWT access token.
+    """Registers a new user with an email and password.
+    Returns a success message if the user is created.
     """
     logger.info("Registering user: %s", user.email)
 

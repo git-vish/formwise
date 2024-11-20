@@ -4,7 +4,6 @@ __all__ = [
     "EntityAlreadyExistsError",
     "AuthenticationError",
     "BadRequestError",
-    "ForbiddenError",
 ]
 
 
@@ -30,7 +29,3 @@ class AuthenticationError(FormwiseError):
 
 class BadRequestError(FormwiseError):
     """Raised when a bad request is made."""
-
-
-class ForbiddenError(FormwiseError):
-    """Raised when a request is forbidden."""

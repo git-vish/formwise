@@ -11,7 +11,6 @@ from src.exceptions import (
     BadRequestError,
     EntityAlreadyExistsError,
     EntityNotFoundError,
-    ForbiddenError,
     FormwiseError,
 )
 
@@ -51,10 +50,6 @@ FORMWISE_EXCEPTION_HANDLERS = {
     BadRequestError: {
         "status_code": status.HTTP_400_BAD_REQUEST,
         "message": "Invalid request.",
-    },
-    ForbiddenError: {
-        "status_code": status.HTTP_403_FORBIDDEN,
-        "message": "Not authenticated.",
     },
 }
 

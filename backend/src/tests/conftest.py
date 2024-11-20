@@ -90,24 +90,3 @@ async def expired_token(test_user: User) -> str:
 async def auth_header(valid_token: str) -> dict[str, str]:
     """Auth header with valid token."""
     return {"Authorization": f"Bearer {valid_token}"}
-
-
-@pytest.fixture
-async def test_user_2() -> User:
-    """Creates another test user."""
-    user = User(
-        email=fake.email(),
-        first_name=fake.first_name(),
-        last_name=fake.last_name(),
-        hashed_password=get_password_hash(fake.password()),
-        auth_provider=AuthProvider.EMAIL,
-    )
-    await user.create()
-    return user
-
-
-@pytest.fixture
-async def auth_header_2(test_user_2: User) -> dict[str, str]:
-    """Auth header fpr another user."""
-    token = create_access_token(test_user_2.email)
-    return {"Authorization": f"Bearer {token}"}
