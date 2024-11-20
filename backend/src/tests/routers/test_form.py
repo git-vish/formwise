@@ -11,13 +11,29 @@ from src.tests.helpers import load_json_data
 BASE_URL = "/api/v1/forms"
 
 
+@pytest.fixture
+def form_data() -> dict:
+    """Valid form data fixture."""
+    return load_json_data("forms/form.json")
+
+
+@pytest.fixture
+async def test_form(test_user: User, form_data: dict) -> Form:
+    form = Form(**form_data, creator=test_user)
+    await form.create()
+    return form
+
+
+@pytest.fixture
+async def test_form_with_constraints(test_user: User) -> Form:
+    form_data = load_json_data("forms/form_constraints.json")
+    form = Form(**form_data, creator=test_user)
+    await form.create()
+    return form
+
+
 @pytest.mark.anyio
 class TestCreateForm:
-    @pytest.fixture
-    def form_data(self) -> dict:
-        """Valid form data fixture."""
-        return load_json_data("forms/form.json")
-
     async def test_create_form_success(
         self, client: AsyncClient, auth_header: dict[str, str], form_data: dict
     ):
@@ -72,7 +88,7 @@ class TestCreateForm:
 
         # Verify field constraints
         for form_data_field, form_field in zip(
-            form_data["fields"], form.fields, strict=False
+            form_data["fields"], form.fields, strict=True
         ):
             assert form_data_field.items() <= form_field.model_dump(mode="json").items()
 
@@ -161,3 +177,60 @@ class TestCreateForm:
         form_data.update(invalid_data)
         response = await client.post(BASE_URL, json=form_data, headers=auth_header)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+
+
+@pytest.mark.anyio
+class TestGetForm:
+    async def test_get_form_creator(
+        self, client: AsyncClient, test_form: Form, auth_header: dict[str, str]
+    ):
+        """Tests successful form retrieval for creator."""
+        response = await client.get(f"{BASE_URL}/{test_form.id}", headers=auth_header)
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["id"] == test_form.id
+        assert data["title"] == test_form.title
+        assert data["description"] == test_form.description
+        assert data["creator"]["email"] == TEST_USER_DATA["email"]
+
+        for form_field, data_field in zip(
+            test_form.fields, data["fields"], strict=True
+        ):
+            assert form_field.model_dump(mode="json") == data_field
+
+    async def test_get_form_public(
+        self, client: AsyncClient, test_form_with_constraints: Form
+    ):
+        """Tests successful form retrieval for unauthenticated user."""
+        response = await client.get(f"{BASE_URL}/{test_form_with_constraints.id}")
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["id"] == test_form_with_constraints.id
+        assert data["title"] == test_form_with_constraints.title
+        assert data["description"] == test_form_with_constraints.description
+        assert data["creator"]["email"] == TEST_USER_DATA["email"]
+
+        for form_field, data_field in zip(
+            test_form_with_constraints.fields, data["fields"], strict=True
+        ):
+            assert form_field.model_dump(mode="json") == data_field
+
+    async def test_get_form_other_user(
+        self, client: AsyncClient, test_form: Form, auth_header_2: dict[str, str]
+    ):
+        """Tests successful form retrieval for another user."""
+        response = await client.get(f"{BASE_URL}/{test_form.id}", headers=auth_header_2)
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["id"] == test_form.id
+        assert data["creator"]["email"] == TEST_USER_DATA["email"]
+
+    async def test_get_form_not_found(
+        self, client: AsyncClient, auth_header: dict[str, str]
+    ):
+        """Tests form retrieval for non-existent form."""
+        response = await client.get(f"{BASE_URL}/invalid_id", headers=auth_header)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
