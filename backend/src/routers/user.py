@@ -17,7 +17,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     status_code=status.HTTP_200_OK,
 )
 async def profile(user: CurrentUser):
-    """Fetches the current authenticated user's profile information."""
+    """Retrieves the current authenticated user's profile information."""
     return user
 
 

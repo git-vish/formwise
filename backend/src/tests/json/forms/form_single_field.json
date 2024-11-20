@@ -1,0 +1,10 @@
+{
+  "title": "Form",
+  "description": "Form with single field",
+  "fields": [
+    {
+      "type": "text",
+      "label": "Text field"
+    }
+  ]
+}
