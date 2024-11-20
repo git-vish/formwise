@@ -73,3 +73,11 @@ class FormReadPublic(BaseModel):
 
 class FormRead(FormReadPublic):
     """Response model for a form (creator)."""
+
+
+class FormConfig(BaseModel):
+    """Response model for form config."""
+
+    max_forms: int
+    max_fields: int
+    max_submissions: int

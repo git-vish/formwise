@@ -279,3 +279,16 @@ class TestDeleteForm:
         """Tests non-existent form deletion."""
         response = await client.delete(f"{BASE_URL}/invalid_id", headers=auth_header)
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.anyio
+class TestGetFormConfig:
+    async def test_get_form_config_success(self, client: AsyncClient):
+        """Tests successful form config retrieval."""
+        response = await client.get(f"{BASE_URL}/config")
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert data["max_forms"] == settings.MAX_FORMS
+        assert data["max_fields"] == settings.MAX_FIELDS
+        assert data["max_submissions"] == settings.MAX_SUBMISSIONS
