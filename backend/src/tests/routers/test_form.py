@@ -234,3 +234,48 @@ class TestGetForm:
         """Tests form retrieval for non-existent form."""
         response = await client.get(f"{BASE_URL}/invalid_id", headers=auth_header)
         assert response.status_code == status.HTTP_404_NOT_FOUND
+
+
+@pytest.mark.anyio
+class TestDeleteForm:
+    async def test_delete_form_success(
+        self, client: AsyncClient, test_form: Form, auth_header: dict[str, str]
+    ):
+        """Tests successful form deletion."""
+        response = await client.delete(
+            f"{BASE_URL}/{test_form.id}", headers=auth_header
+        )
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+        # Verify form was deleted from database
+        form = await Form.get(test_form.id)
+        assert form is None
+
+    async def test_delete_form_unauthorized(self, client: AsyncClient, test_form: Form):
+        """Tests unauthorized form deletion attempt."""
+        response = await client.delete(f"{BASE_URL}/{test_form.id}")
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        # Verify form was not deleted from database
+        form = await Form.get(test_form.id)
+        assert form is not None
+
+    async def test_delete_form_other_user(
+        self, client: AsyncClient, test_form: Form, auth_header_2: dict[str, str]
+    ):
+        """Tests form deletion for another user."""
+        response = await client.delete(
+            f"{BASE_URL}/{test_form.id}", headers=auth_header_2
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+        # Verify form was not deleted from database
+        form = await Form.get(test_form.id)
+        assert form is not None
+
+    async def test_delete_form_not_found(
+        self, client: AsyncClient, auth_header: dict[str, str]
+    ):
+        """Tests non-existent form deletion."""
+        response = await client.delete(f"{BASE_URL}/invalid_id", headers=auth_header)
+        assert response.status_code == status.HTTP_404_NOT_FOUND

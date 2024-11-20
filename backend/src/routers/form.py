@@ -3,8 +3,12 @@ import logging
 from fastapi import APIRouter, HTTPException, status
 
 from src.config import settings
-from src.dependencies import CurrentUserWithLinks, OptionalCurrentUserWithLinks
-from src.exceptions import BadRequestError, EntityNotFoundError
+from src.dependencies import (
+    CurrentUser,
+    CurrentUserWithLinks,
+    OptionalCurrentUserWithLinks,
+)
+from src.exceptions import BadRequestError, EntityNotFoundError, ForbiddenError
 from src.models.form import Form, FormCreate, FormRead, FormReadPublic, FormUpdate
 
 logger = logging.getLogger(__name__)
@@ -63,9 +67,18 @@ async def get_form(form_id: str, user: OptionalCurrentUserWithLinks):
     "/{form_id}",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def delete_form(form_id: str, user: CurrentUserWithLinks):
+async def delete_form(form_id: str, user: CurrentUser):
     """Deletes a form and its submissions (if owned by the user)."""
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    form = await Form.get(form_id, fetch_links=True)
+    if not form:
+        raise EntityNotFoundError("Form not found")
+
+    if form.creator.id != user.id:
+        raise ForbiddenError("Not authorized to delete this form.")
+
+    await form.delete()
+    # TODO: Implement deletion of form submissions
+    logger.info('Deleted Form: "%s" for User: %s', form.title, user)
 
 
 @router.patch(
