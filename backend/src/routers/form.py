@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from src.config import settings
 from src.dependencies import CurrentUserWithLinks, OptionalCurrentUserWithLinks
-from src.exceptions import BadRequestError
+from src.exceptions import BadRequestError, EntityNotFoundError
 from src.models.form import Form, FormCreate, FormRead, FormReadPublic, FormUpdate
 
 logger = logging.getLogger(__name__)
@@ -47,7 +47,16 @@ async def create_form(form: FormCreate, user: CurrentUserWithLinks):
 )
 async def get_form(form_id: str, user: OptionalCurrentUserWithLinks):
     """Retrieves a form."""
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED)
+    form = await Form.get(form_id, fetch_links=True)
+    if not form:
+        raise EntityNotFoundError("Form not found")
+
+    # Return form data for creator
+    if user and user.id == form.creator.id:
+        return FormRead(**form.model_dump())
+
+    # Return public form data
+    return FormReadPublic(**form.model_dump())
 
 
 @router.delete(
