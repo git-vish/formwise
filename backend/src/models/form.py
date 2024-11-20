@@ -59,13 +59,25 @@ class FormUpdate(BaseModel):
     is_active: bool | None = None
 
 
-class FormRead(BaseModel):
-    """Response model for a form."""
+class FormReadPublic(BaseModel):
+    """Response model for a form (public)."""
 
     id: str
     title: Title
     description: Description | None
-    fields: list[FormField]
+    fields: list[FormField] | None
     is_active: bool
     creator: UserPublic
     created_at: datetime
+
+
+class FormRead(FormReadPublic):
+    """Response model for a form (creator)."""
+
+
+class FormConfig(BaseModel):
+    """Response model for form config."""
+
+    max_forms: int
+    max_fields: int
+    max_submissions: int
