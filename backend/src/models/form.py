@@ -1,9 +1,11 @@
+import random
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated
 
 from beanie import Document, Link
 from pydantic import BaseModel, Field, field_validator
 
+from src.config import settings
 from src.models.field import FormField
 from src.models.user import UserPublic
 from src.utils import generate_unique_id
@@ -65,7 +67,7 @@ class FormReadPublic(BaseModel):
     id: str
     title: Title
     description: Description | None
-    fields: list[FormField] | None
+    fields: list[FormField]
     is_active: bool
     creator: UserPublic
     created_at: datetime
@@ -73,6 +75,37 @@ class FormReadPublic(BaseModel):
 
 class FormRead(FormReadPublic):
     """Response model for a form (creator)."""
+
+
+class FormOverview(BaseModel):
+    """Response model for a form (overview)."""
+
+    id: str
+    title: Title
+    is_active: bool
+    response_count: int
+    created_at: datetime
+
+    @staticmethod
+    def from_forms(form_list: list[Form]) -> list["FormOverview"]:
+        """Creates a list of FormOverview instances from a list of Form instances,
+        sorted by creation date in descending order.
+
+        Args:
+            form_list (list[Form]): List of Form instances.
+
+        Returns:
+            list[FormOverview]: List of FormOverview instances.
+        """
+        form_list.sort(key=lambda form: form.created_at, reverse=True)
+        return [
+            FormOverview(
+                **form.model_dump(),
+                # TODO: Add response count
+                response_count=random.randint(0, settings.MAX_RESPONSES),
+            )
+            for form in form_list
+        ]
 
 
 class FormConfig(BaseModel):

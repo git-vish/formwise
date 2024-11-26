@@ -13,6 +13,7 @@ from src.models.form import (
     Form,
     FormConfig,
     FormCreate,
+    FormOverview,
     FormRead,
     FormReadPublic,
     FormUpdate,
@@ -110,3 +111,13 @@ async def delete_form(form_id: str, user: CurrentUser):
 async def update_form(form_id: str, update: FormUpdate, user: CurrentUserWithLinks):
     """Updates an existing form (if owned by the user)."""
     raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED)
+
+
+@router.get(
+    "",
+    response_model=list[FormOverview],
+    status_code=status.HTTP_200_OK,
+)
+async def get_forms(user: CurrentUserWithLinks):
+    """Retrieves a list of user's forms."""
+    return FormOverview.from_forms(user.forms)
