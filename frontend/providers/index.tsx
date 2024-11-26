@@ -10,6 +10,11 @@ const QueryProvider = dynamic(
   { ssr: false }
 );
 
+const ConfigProvider = dynamic(
+  () => import("@/providers/config-provider").then((mod) => mod.ConfigProvider),
+  { ssr: false }
+);
+
 const AuthProvider = dynamic(
   () => import("@/providers/auth-provider").then((mod) => mod.AuthProvider),
   { ssr: false }
@@ -19,10 +24,12 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ConfigProvider>
+          <AuthProvider>
+            {children}
+            <Toaster />
+          </AuthProvider>
+        </ConfigProvider>
       </QueryProvider>
     </ThemeProvider>
   );
