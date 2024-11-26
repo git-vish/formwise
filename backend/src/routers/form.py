@@ -29,6 +29,7 @@ router = APIRouter(prefix="/forms", tags=["Forms"])
     status_code=status.HTTP_200_OK,
 )
 async def get_form_config():
+    """Retrieves form configuration."""
     return FormConfig(
         max_forms=settings.MAX_FORMS,
         max_fields=settings.MAX_FIELDS,
