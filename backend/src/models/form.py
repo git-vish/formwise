@@ -80,4 +80,4 @@ class FormConfig(BaseModel):
 
     max_forms: int
     max_fields: int
-    max_submissions: int
+    max_responses: int

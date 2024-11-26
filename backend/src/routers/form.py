@@ -33,7 +33,7 @@ async def get_form_config():
     return FormConfig(
         max_forms=settings.MAX_FORMS,
         max_fields=settings.MAX_FIELDS,
-        max_submissions=settings.MAX_SUBMISSIONS,
+        max_responses=settings.MAX_RESPONSES,
     )
 
 

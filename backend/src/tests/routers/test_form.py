@@ -291,4 +291,4 @@ class TestGetFormConfig:
         data = response.json()
         assert data["max_forms"] == settings.MAX_FORMS
         assert data["max_fields"] == settings.MAX_FIELDS
-        assert data["max_submissions"] == settings.MAX_SUBMISSIONS
+        assert data["max_responses"] == settings.MAX_RESPONSES
