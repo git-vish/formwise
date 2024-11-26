@@ -4,14 +4,14 @@ from contextlib import asynccontextmanager
 import logfire
 from asgi_correlation_id import CorrelationIdMiddleware
 from beanie import init_beanie
-from fastapi import APIRouter, FastAPI
+from fastapi import FastAPI, status
 from motor.motor_asyncio import AsyncIOMotorClient
 from starlette.middleware.cors import CORSMiddleware
 
 from src.config import configure_logging, settings
 from src.exceptions.handler import add_exception_handlers
 from src.models import DOCUMENT_MODELS
-from src.routers import auth, form, user
+from src.routers import include_routers
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +57,6 @@ if settings.LOGFIRE_TOKEN:
     # Exclude top-level routes e.g. /ping, /openapi.json etc
     logfire.instrument_fastapi(app, excluded_urls=r"^(https?://[^/]+)?/[^/]+/?$")
 
-
 # Add middlewares
 app.add_middleware(CorrelationIdMiddleware)
 
@@ -72,17 +71,11 @@ app.add_middleware(
 
 add_exception_handlers(app)
 
+# Include routers
+include_routers(app)
 
-@app.get("/ping", status_code=200)
+
+@app.get("/ping", status_code=status.HTTP_200_OK)
 async def ping():
     """Health check endpoint."""
     return {"detail": "pong"}
-
-
-# API v1 routes
-api_v1_router = APIRouter()
-api_v1_router.include_router(auth.router)
-api_v1_router.include_router(user.router)
-api_v1_router.include_router(form.router)
-
-app.include_router(api_v1_router, prefix="/api/v1")

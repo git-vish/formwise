@@ -106,11 +106,3 @@ class FormOverview(BaseModel):
             )
             for form in form_list
         ]
-
-
-class FormConfig(BaseModel):
-    """Response model for form config."""
-
-    max_forms: int
-    max_fields: int
-    max_responses: int

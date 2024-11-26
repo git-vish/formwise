@@ -11,7 +11,6 @@ from src.dependencies import (
 from src.exceptions import BadRequestError, EntityNotFoundError, ForbiddenError
 from src.models.form import (
     Form,
-    FormConfig,
     FormCreate,
     FormOverview,
     FormRead,
@@ -22,20 +21,6 @@ from src.models.form import (
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/forms", tags=["Forms"])
-
-
-@router.get(
-    "/config",
-    response_model=FormConfig,
-    status_code=status.HTTP_200_OK,
-)
-async def get_form_config():
-    """Retrieves form configuration."""
-    return FormConfig(
-        max_forms=settings.MAX_FORMS,
-        max_fields=settings.MAX_FIELDS,
-        max_responses=settings.MAX_RESPONSES,
-    )
 
 
 @router.post(
