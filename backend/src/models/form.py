@@ -65,7 +65,7 @@ class FormReadPublic(BaseModel):
     id: str
     title: Title
     description: Description | None
-    fields: list[FormField] | None
+    fields: list[FormField]
     is_active: bool
     creator: UserPublic
     created_at: datetime
@@ -75,9 +75,32 @@ class FormRead(FormReadPublic):
     """Response model for a form (creator)."""
 
 
-class FormConfig(BaseModel):
-    """Response model for form config."""
+class FormOverview(BaseModel):
+    """Response model for a form (overview)."""
 
-    max_forms: int
-    max_fields: int
-    max_submissions: int
+    id: str
+    title: Title
+    is_active: bool
+    response_count: int
+    created_at: datetime
+
+    @staticmethod
+    def from_forms(form_list: list[Form]) -> list["FormOverview"]:
+        """Creates a list of FormOverview instances from a list of Form instances,
+        sorted by creation date in descending order.
+
+        Args:
+            form_list (list[Form]): List of Form instances.
+
+        Returns:
+            list[FormOverview]: List of FormOverview instances.
+        """
+        form_list.sort(key=lambda form: form.created_at, reverse=True)
+        return [
+            FormOverview(
+                **form.model_dump(),
+                # TODO: Add response count
+                response_count=0,
+            )
+            for form in form_list
+        ]

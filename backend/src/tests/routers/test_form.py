@@ -3,7 +3,7 @@ from fastapi import status
 from httpx import AsyncClient
 
 from src.config import settings
-from src.models.form import Form
+from src.models.form import Form, FormOverview
 from src.models.user import User
 from src.tests.data import TEST_USER_DATA
 from src.tests.helpers import load_json_data
@@ -282,13 +282,48 @@ class TestDeleteForm:
 
 
 @pytest.mark.anyio
-class TestGetFormConfig:
-    async def test_get_form_config_success(self, client: AsyncClient):
-        """Tests successful form config retrieval."""
-        response = await client.get(f"{BASE_URL}/config")
+class TestGetForms:
+    async def test_get_forms_success(
+        self,
+        client: AsyncClient,
+        auth_header: dict[str, str],
+        test_form: Form,
+        test_form_with_constraints: Form,
+    ):
+        """Tests successful form list retrieval in the correct order."""
+        expected_forms = [
+            FormOverview(**form.model_dump(), response_count=0).model_dump(
+                exclude={
+                    "created_at",
+                }
+            )
+            for form in sorted(
+                [test_form, test_form_with_constraints],
+                key=lambda x: x.created_at,
+                reverse=True,
+            )
+        ]
+        response = await client.get(BASE_URL, headers=auth_header)
 
         assert response.status_code == status.HTTP_200_OK
         data = response.json()
-        assert data["max_forms"] == settings.MAX_FORMS
-        assert data["max_fields"] == settings.MAX_FIELDS
-        assert data["max_submissions"] == settings.MAX_SUBMISSIONS
+        assert len(data) == len(expected_forms)
+
+        for actual_form, expected_form in zip(data, expected_forms, strict=True):
+            actual_form.pop("created_at")
+            assert actual_form == expected_form
+
+    async def test_get_forms_other_user(
+        self, client: AsyncClient, auth_header_2: dict[str, str], test_form: Form
+    ):
+        """Tests form list retrieval for another user."""
+        response = await client.get(BASE_URL, headers=auth_header_2)
+
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert len(data) == 0
+
+    async def test_get_forms_unauthorized(self, client: AsyncClient):
+        """Tests unauthorized form list retrieval attempt."""
+        response = await client.get(BASE_URL)
+        assert response.status_code == status.HTTP_403_FORBIDDEN

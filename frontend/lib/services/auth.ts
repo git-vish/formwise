@@ -9,7 +9,7 @@ import type {
 
 export const authService = {
   async login(credentials: LoginCredentials): Promise<Token> {
-    return apiRequest<Token>({
+    return await apiRequest<Token>({
       endpoint: AUTH_URLS.LOGIN,
       method: "POST",
       payload: credentials,
@@ -21,7 +21,7 @@ export const authService = {
   },
 
   async register(credentials: RegisterCredentials): Promise<Token> {
-    return apiRequest<Token>({
+    return await apiRequest<Token>({
       endpoint: AUTH_URLS.REGISTER,
       method: "POST",
       payload: credentials,
@@ -42,14 +42,14 @@ export const authService = {
   },
 
   async getCurrentUser(): Promise<User> {
-    return apiRequest<User>({
+    return await apiRequest<User>({
       endpoint: USER_URLS.ME,
       requireAuth: true,
     });
   },
 
   async updateUser(update: Partial<User>): Promise<User> {
-    return apiRequest<User>({
+    return await apiRequest<User>({
       endpoint: USER_URLS.ME,
       method: "PATCH",
       payload: update,

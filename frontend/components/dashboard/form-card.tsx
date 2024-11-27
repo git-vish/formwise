@@ -19,25 +19,25 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
-import { Form } from "@/types/form";
+import { FormOverview } from "@/types/form";
 import { useMemo } from "react";
 import { formatDate } from "@/lib/utils";
-
-const SUBMISSION_LIMIT = 150;
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FormCardProps {
-  form: Form;
+  form: FormOverview;
+  maxResponses: number;
 }
 
-export default function FormCard({ form }: FormCardProps) {
+export default function FormCard({ form, maxResponses }: FormCardProps) {
   const remainingResponses = useMemo(
-    () => SUBMISSION_LIMIT - form.responses,
-    [form.responses]
+    () => maxResponses - form.response_count,
+    [form.response_count, maxResponses]
   );
 
   const responsePercentage = useMemo(
-    () => (remainingResponses / SUBMISSION_LIMIT) * 100,
-    [remainingResponses]
+    () => (form.response_count / maxResponses) * 100,
+    [form.response_count, maxResponses]
   );
 
   return (
@@ -79,15 +79,13 @@ export default function FormCard({ form }: FormCardProps) {
                 {formatDate(form.created_at)}
               </time>
             </div>
-            {form.accepting_responses && responsePercentage < 100 && (
-              <Badge>Live</Badge>
-            )}
+            {form.is_active && responsePercentage < 100 && <Badge>Live</Badge>}
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Responses</span>
-              <span className="font-medium">{form.responses}</span>
+              <span className="font-medium">{form.response_count}</span>
             </div>
             <Progress value={responsePercentage} className="h-2" />
             <div className="flex justify-between text-xs text-muted-foreground">
@@ -100,3 +98,42 @@ export default function FormCard({ form }: FormCardProps) {
     </Link>
   );
 }
+
+function FormCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+        <div className="space-y-1 max-w-[80%]">
+          <CardTitle>
+            <Skeleton className="h-6 w-3/4" />
+          </CardTitle>
+        </div>
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-6 w-12" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-12" />
+          </div>
+          <Skeleton className="h-2 w-full" />
+          <div className="flex justify-between">
+            <Skeleton className="h-3 w-36" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+FormCard.Skeleton = FormCardSkeleton;
