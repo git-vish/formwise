@@ -3,7 +3,7 @@
 import { createContext, useEffect, useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { configService } from "@/lib/services/config";
-import type { Config, ConfigContextType } from "@/types/config";
+import type { AppConfig, ConfigContextType } from "@/types/config";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertTriangleIcon } from "lucide-react";
 
@@ -19,7 +19,7 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
     data: config,
     isLoading,
     error,
-  } = useQuery<Config>({
+  } = useQuery<AppConfig>({
     queryKey: ["appConfig"],
     queryFn: configService.getConfig,
     enabled: isInitialized,
@@ -35,7 +35,7 @@ export function ConfigProvider({ children }: { children: React.ReactNode }) {
   // Memoized context value
   const contextValue = useMemo<ConfigContextType>(
     () => ({
-      config: config ?? null,
+      appConfig: config ?? null,
       isLoading: !isInitialized || isLoading,
       error: error instanceof Error ? error : null,
     }),
