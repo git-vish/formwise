@@ -1,11 +1,9 @@
-import random
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Annotated
 
 from beanie import Document, Link
 from pydantic import BaseModel, Field, field_validator
 
-from src.config import settings
 from src.models.field import FormField
 from src.models.user import UserPublic
 from src.utils import generate_unique_id
@@ -102,7 +100,7 @@ class FormOverview(BaseModel):
             FormOverview(
                 **form.model_dump(),
                 # TODO: Add response count
-                response_count=random.randint(0, settings.MAX_RESPONSES),
+                response_count=0,
             )
             for form in form_list
         ]
