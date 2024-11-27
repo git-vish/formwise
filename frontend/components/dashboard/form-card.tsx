@@ -22,6 +22,7 @@ import Link from "next/link";
 import { FormOverview } from "@/types/form";
 import { useMemo } from "react";
 import { formatDate } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FormCardProps {
   form: FormOverview;
@@ -97,3 +98,42 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
     </Link>
   );
 }
+
+function FormCardSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
+        <div className="space-y-1 max-w-[80%]">
+          <CardTitle>
+            <Skeleton className="h-6 w-3/4" />
+          </CardTitle>
+        </div>
+        <Skeleton className="h-8 w-8 rounded-md" />
+      </CardHeader>
+
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-4 w-4 rounded-full" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <Skeleton className="h-6 w-12" />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex justify-between">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-4 w-12" />
+          </div>
+          <Skeleton className="h-2 w-full" />
+          <div className="flex justify-between">
+            <Skeleton className="h-3 w-36" />
+            <Skeleton className="h-3 w-16" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+FormCard.Skeleton = FormCardSkeleton;

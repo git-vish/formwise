@@ -11,7 +11,7 @@ import { useForms } from "@/hooks/use-forms";
 
 export default function FormsSection() {
   const { appConfig } = useConfig();
-  const { forms } = useForms();
+  const { forms, isLoading } = useForms();
 
   const maxForms = appConfig?.max_forms || 5;
   const maxResponses = appConfig?.max_responses || 150;
@@ -36,7 +36,7 @@ export default function FormsSection() {
         <div className="flex flex-col items-end gap-2">
           <Button
             className="flex items-center gap-2 w-full sm:w-auto"
-            disabled={forms.length >= maxForms}
+            disabled={forms.length >= maxForms || isLoading}
           >
             <PlusIcon className="h-4 w-4" /> Create Form
           </Button>
@@ -51,7 +51,13 @@ export default function FormsSection() {
         </div>
       </div>
 
-      {forms.length === 0 ? (
+      {isLoading ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {[...Array(3)].map((_, index) => (
+            <FormCard.Skeleton key={index} />
+          ))}
+        </div>
+      ) : forms.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed rounded-lg">
           <p className="text-muted-foreground">
             Click &quot;Create Form&quot; to get started.
