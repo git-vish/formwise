@@ -2,27 +2,23 @@
 
 import { ThemeProvider } from "./theme-provider";
 import { Toaster } from "@/components/ui/toaster";
-
-import dynamic from "next/dynamic";
-
-const QueryProvider = dynamic(
-  () => import("@/providers/query-provider").then((mod) => mod.QueryProvider),
-  { ssr: false }
-);
-
-const AuthProvider = dynamic(
-  () => import("@/providers/auth-provider").then((mod) => mod.AuthProvider),
-  { ssr: false }
-);
+import { QueryProvider } from "@/providers/query-provider";
+import { ConfigProvider } from "@/providers/config-provider";
+import { AuthProvider } from "@/providers/auth-provider";
+import { FormsProvider } from "@/providers/forms-provider";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <ThemeProvider>
       <QueryProvider>
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+        <ConfigProvider>
+          <AuthProvider>
+            <FormsProvider>
+              {children}
+              <Toaster />
+            </FormsProvider>
+          </AuthProvider>
+        </ConfigProvider>
       </QueryProvider>
     </ThemeProvider>
   );

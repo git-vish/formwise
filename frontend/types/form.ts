@@ -1,8 +1,14 @@
-export interface Form {
+export interface FormOverview {
   id: string;
   title: string;
-  description?: string;
+  is_active: boolean;
+  response_count: number;
   created_at: string;
-  accepting_responses: boolean;
-  responses: number;
+}
+
+export interface FormsContextType {
+  forms: FormOverview[];
+  isLoading: boolean;
+  error: Error | null;
+  refreshForms: () => Promise<void>;
 }
