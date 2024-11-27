@@ -17,3 +17,9 @@ export const AUTH_URLS = {
 export const USER_URLS = {
   ME: `${BASE_API_URL}/users/me`,
 };
+
+// Form Endpoints
+export const FORM_URLS = {
+  BASE: `${BASE_API_URL}/forms`,
+  BY_ID: (id: string) => `${BASE_API_URL}/forms/${id}`,
+};
