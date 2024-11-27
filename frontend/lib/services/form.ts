@@ -1,4 +1,4 @@
-import { FormOverview } from "@/types/form";
+import type { FormOverview } from "@/types/form";
 import { apiRequest } from "@/lib/api";
 import { FORM_URLS } from "@/config/api-urls";
 

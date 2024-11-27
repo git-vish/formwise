@@ -6,47 +6,19 @@ import { Progress } from "@/components/ui/progress";
 import FormCard from "./form-card";
 import { useMemo } from "react";
 
-const FORM_LIMIT = 5;
-
-const forms = [
-  {
-    id: "form-1",
-    title: "Employee Satisfaction Survey 2024",
-    description:
-      "Annual survey to measure employee engagement and workplace satisfaction",
-    created_at: "2024-03-01",
-    accepting_responses: true,
-    responses: 150,
-  },
-  {
-    id: "form-2",
-    title: "Product Feature Request",
-    description: "Help us prioritize new features for our next release",
-    created_at: "2024-03-15",
-    accepting_responses: false,
-    responses: 89,
-  },
-  {
-    id: "form-3",
-    title: "Conference Registration Form",
-    description: "Sign up for TechConnect 2024 - Limited spots available",
-    created_at: "2024-02-28",
-    accepting_responses: true,
-    responses: 142,
-  },
-  {
-    id: "form-4",
-    title: "Website Redesign Feedback",
-    created_at: "2024-03-18",
-    accepting_responses: false,
-    responses: 0,
-  },
-];
+import { useConfig } from "@/hooks/use-config";
+import { useForms } from "@/hooks/use-forms";
 
 export default function FormsSection() {
+  const { appConfig } = useConfig();
+  const { forms } = useForms();
+
+  const maxForms = appConfig?.max_forms || 5;
+  const maxResponses = appConfig?.max_responses || 150;
+
   const formsUsagePercentage = useMemo(
-    () => (forms.length / FORM_LIMIT) * 100,
-    []
+    () => (forms.length / maxForms) * 100,
+    [forms.length, maxForms]
   );
 
   return (
@@ -64,7 +36,7 @@ export default function FormsSection() {
         <div className="flex flex-col items-end gap-2">
           <Button
             className="flex items-center gap-2 w-full sm:w-auto"
-            disabled={forms.length >= FORM_LIMIT}
+            disabled={forms.length >= maxForms}
           >
             <PlusIcon className="h-4 w-4" /> Create Form
           </Button>
@@ -73,7 +45,7 @@ export default function FormsSection() {
               <Progress value={formsUsagePercentage} className="h-2" />
             </div>
             <span>
-              {forms.length}/{FORM_LIMIT} forms used
+              {forms.length}/{maxForms} forms used
             </span>
           </div>
         </div>
@@ -88,7 +60,7 @@ export default function FormsSection() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {forms.map((form) => (
-            <FormCard key={form.id} form={form} />
+            <FormCard key={form.id} form={form} maxResponses={maxResponses} />
           ))}
         </div>
       )}

@@ -19,25 +19,24 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
-import { Form } from "@/types/form";
+import { FormOverview } from "@/types/form";
 import { useMemo } from "react";
 import { formatDate } from "@/lib/utils";
 
-const SUBMISSION_LIMIT = 150;
-
 interface FormCardProps {
-  form: Form;
+  form: FormOverview;
+  maxResponses: number;
 }
 
-export default function FormCard({ form }: FormCardProps) {
+export default function FormCard({ form, maxResponses }: FormCardProps) {
   const remainingResponses = useMemo(
-    () => SUBMISSION_LIMIT - form.responses,
-    [form.responses]
+    () => maxResponses - form.response_count,
+    [form.response_count, maxResponses]
   );
 
   const responsePercentage = useMemo(
-    () => (remainingResponses / SUBMISSION_LIMIT) * 100,
-    [remainingResponses]
+    () => (form.response_count / maxResponses) * 100,
+    [form.response_count, maxResponses]
   );
 
   return (
@@ -79,15 +78,13 @@ export default function FormCard({ form }: FormCardProps) {
                 {formatDate(form.created_at)}
               </time>
             </div>
-            {form.accepting_responses && responsePercentage < 100 && (
-              <Badge>Live</Badge>
-            )}
+            {form.is_active && responsePercentage < 100 && <Badge>Live</Badge>}
           </div>
 
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Responses</span>
-              <span className="font-medium">{form.responses}</span>
+              <span className="font-medium">{form.response_count}</span>
             </div>
             <Progress value={responsePercentage} className="h-2" />
             <div className="flex justify-between text-xs text-muted-foreground">
