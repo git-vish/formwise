@@ -1,4 +1,4 @@
-import FormEditor from "@/components/form/form-editor";
+import FormView from "@/components/form/form-view";
 import FormResponses from "@/components/form/form-responses";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -15,13 +15,11 @@ export default function FormPage({ params }: FormPageProps) {
         <div className="flex justify-start md:justify-center">
           <TabsList>
             <TabsTrigger value="questions">Questions</TabsTrigger>
-            <TabsTrigger value="responses" disabled={params.formId === "new"}>
-              Responses
-            </TabsTrigger>
+            <TabsTrigger value="responses">Responses</TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="questions">
-          <FormEditor formId={params.formId} />
+          <FormView formId={params.formId} />
         </TabsContent>
         <TabsContent value="responses">
           <FormResponses formId={params.formId} />

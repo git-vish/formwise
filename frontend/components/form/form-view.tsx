@@ -2,11 +2,11 @@
 
 import { useForm } from "@/hooks/use-forms";
 
-interface FormEditorProps {
+interface FormViewProps {
   formId: string;
 }
 
-export default function FormEditor({ formId }: FormEditorProps) {
+export default function FormView({ formId }: FormViewProps) {
   const { data: form, isLoading, error } = useForm(formId, true);
 
   if (isLoading) return <p>Loading...</p>;
