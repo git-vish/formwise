@@ -54,7 +54,7 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
   };
 
   return (
-    <Link href="/forms/[formId]" as={`/forms/${form.id}`}>
+    <Link href={`/forms/${form.id}`}>
       <Card className="hover:border-primary">
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
           <div className="space-y-1 max-w-[80%]">
