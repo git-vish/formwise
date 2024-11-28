@@ -35,8 +35,8 @@ export interface MultiSelectField extends BaseField {
 
 export interface DateField extends BaseField {
   type: "date";
-  min_date: string;
-  max_date: string;
+  min_date: string | null;
+  max_date: string | null;
 }
 
 export interface EmailField extends BaseField {
@@ -45,8 +45,8 @@ export interface EmailField extends BaseField {
 
 export interface NumberField extends BaseField {
   type: "number";
-  min_value: number;
-  max_value: number;
+  min_value: number | null;
+  max_value: number | null;
   precision: number;
 }
 

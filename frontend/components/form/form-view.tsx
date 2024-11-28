@@ -28,11 +28,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar } from "@/components/ui/calendar";
 import {
-  DateField,
   DropdownField,
   Field,
   MultiSelectField,
-  NumberField,
   SelectField,
 } from "@/types/field";
 
@@ -113,10 +111,10 @@ export default function FormView({ formId }: FormViewProps) {
           )}
           {field.type === "date" && (
             <Calendar
-              selected={new Date((field as DateField).min_date)}
               mode="single"
-              fromDate={new Date((field as DateField).min_date)}
-              toDate={new Date((field as DateField).max_date)}
+              selected={field.min_date ? new Date(field.min_date) : undefined}
+              fromDate={field.min_date ? new Date(field.min_date) : undefined}
+              toDate={field.max_date ? new Date(field.max_date) : undefined}
             />
           )}
           {field.type === "email" && (
@@ -133,9 +131,8 @@ export default function FormView({ formId }: FormViewProps) {
               type="number"
               placeholder={`Enter ${field.label}`}
               required={field.required}
-              min={(field as NumberField).min_value}
-              max={(field as NumberField).max_value}
-              step={1 / Math.pow(10, (field as NumberField).precision)}
+              min={field.min_value ? field.min_value : undefined}
+              max={field.max_value ? field.max_value : undefined}
             />
           )}
           {field.type === "url" && (
