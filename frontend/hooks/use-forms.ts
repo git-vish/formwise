@@ -4,6 +4,7 @@ import { useContext } from "react";
 import { FormsContext } from "@/providers/forms-provider";
 import { useQuery } from "@tanstack/react-query";
 import { formService } from "@/lib/services/form";
+import { Form } from "@/types/form";
 
 export function useForms() {
   const context = useContext(FormsContext);
@@ -14,10 +15,9 @@ export function useForms() {
 }
 
 export function useForm(formId: string, requireAuth: boolean = false) {
-  return useQuery({
+  return useQuery<Form>({
     queryKey: ["form", formId],
     queryFn: () => formService.getForm(formId, requireAuth),
     staleTime: 10 * 60 * 1000, // 10 minutes
-    enabled: !!formId && formId !== "new",
   });
 }
