@@ -39,7 +39,7 @@ interface FormViewProps {
 }
 
 export default function FormView({ formId }: FormViewProps) {
-  const { data: form, isLoading, error } = useForm(formId, true);
+  const { data: form, isLoading, error } = useForm(formId);
 
   if (isLoading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
@@ -150,7 +150,7 @@ export default function FormView({ formId }: FormViewProps) {
 
   return (
     <div className="mt-8">
-      <Card className="max-w-lg mx-auto">
+      <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>{form.title}</CardTitle>
           {form.description && (

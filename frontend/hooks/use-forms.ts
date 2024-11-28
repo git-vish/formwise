@@ -14,10 +14,10 @@ export function useForms() {
   return context;
 }
 
-export function useForm(formId: string, requireAuth: boolean = false) {
+export function useForm(formId: string) {
   return useQuery<Form>({
     queryKey: ["form", formId],
-    queryFn: () => formService.getForm(formId, requireAuth),
+    queryFn: () => formService.getForm(formId),
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
