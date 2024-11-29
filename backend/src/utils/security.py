@@ -8,13 +8,13 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from passlib.context import CryptContext
 
 from src.config import settings
-from src.exceptions import AuthenticationError, ForbiddenError
+from src.exceptions import AuthenticationError
 from src.models.user import User
 
 logger = logging.getLogger(__name__)
 
 PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
-http_scheme = HTTPBearer(auto_error=False)
+http_scheme = HTTPBearer()
 
 
 def get_password_hash(password: str) -> str:
@@ -66,22 +66,17 @@ class CurrentUser:
     Dependency to fetch the current authenticated user.
 
     Attributes:
-        optional (bool): Whether authentication is optional.
         fetch_links (bool): Whether to fetch linked documents in the User model.
     """
 
-    def __init__(self, optional: bool = False, fetch_links: bool = False):
-        self.optional = optional
+    def __init__(self, fetch_links: bool = False):
         self.fetch_links = fetch_links
 
     async def __call__(
         self,
-        credentials: Annotated[
-            HTTPAuthorizationCredentials | None, Depends(http_scheme)
-        ],
-    ) -> User | None:
+        credentials: Annotated[HTTPAuthorizationCredentials, Depends(http_scheme)],
+    ) -> User:
         """Validates JWT token and retrieves the user.
-        If `optional` is True, returns None if the token is not present.
 
         Args:
             credentials: Bearer token credentials from request.
@@ -92,11 +87,6 @@ class CurrentUser:
         Raises:
             HTTPException: If the token is invalid or user not found.
         """
-        if not credentials:
-            if self.optional:
-                return
-            raise ForbiddenError()
-
         token = credentials.credentials
 
         try:

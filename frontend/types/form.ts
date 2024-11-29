@@ -26,5 +26,4 @@ export interface Form extends BaseForm {
     last_name: string;
     email: string;
   };
-  // Add optional properties for FormRead (creator) model when implemented
 }

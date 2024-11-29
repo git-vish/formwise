@@ -10,10 +10,9 @@ export const formService = {
     });
   },
 
-  async getForm(id: string, requireAuth: boolean = false): Promise<Form> {
+  async getForm(id: string): Promise<Form> {
     return await apiRequest<Form>({
       endpoint: FORM_URLS.BY_ID(id),
-      requireAuth,
     });
   },
 };
