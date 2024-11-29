@@ -7,7 +7,7 @@ export default function NotFound() {
     <div className="min-h-[calc(100vh-7rem)] flex flex-col items-center justify-center gap-6 px-4 text-center">
       <h1 className="text-6xl md:text-8xl font-bold">404</h1>
       <p className="text-lg md:text-xl text-muted-foreground">
-        The page you're looking for is on a permanent vacation. 🏖️
+        The page you&apos;re looking for is on a permanent vacation. 🏖️
       </p>
       <Link href="/" passHref>
         <Button variant="outline">
