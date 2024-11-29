@@ -172,48 +172,50 @@ export default function FormWise({ form }: FormWiseProps) {
             control={formHook.control}
             name={field.tag}
             render={() => (
-              <FormItem>
+              <FormItem className="mb-8">
                 <FormLabel>
                   {field.label}
                   {field.required && (
                     <span className="text-red-600 text-md"> *</span>
                   )}
                 </FormLabel>
-                <div className="space-y-2">
+                <div className="flex flex-wrap gap-3 items-center">
                   {(field as MultiSelectField).options.map((option: string) => (
                     <FormField
                       key={option}
                       control={formHook.control}
                       name={field.tag}
-                      render={({ field: formField }) => {
-                        return (
-                          <FormItem
-                            key={option}
-                            className="flex flex-row items-start space-x-3 space-y-0"
+                      render={({ field: formField }) => (
+                        <FormItem
+                          key={option}
+                          className="flex items-center space-x-2 space-y-0"
+                        >
+                          <FormControl>
+                            <Checkbox
+                              id={`${field.tag}-${option}`}
+                              checked={formField.value?.includes(option)}
+                              onCheckedChange={(checked) => {
+                                return checked
+                                  ? formField.onChange([
+                                      ...(formField.value || []),
+                                      option,
+                                    ])
+                                  : formField.onChange(
+                                      formField.value?.filter(
+                                        (value: string) => value !== option
+                                      )
+                                    );
+                              }}
+                            />
+                          </FormControl>
+                          <FormLabel
+                            htmlFor={`${field.tag}-${option}`}
+                            className="font-normal cursor-pointer"
                           >
-                            <FormControl>
-                              <Checkbox
-                                checked={formField.value?.includes(option)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? formField.onChange([
-                                        ...(formField.value || []),
-                                        option,
-                                      ])
-                                    : formField.onChange(
-                                        formField.value?.filter(
-                                          (value: string) => value !== option
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {option}
-                            </FormLabel>
-                          </FormItem>
-                        );
-                      }}
+                            {option}
+                          </FormLabel>
+                        </FormItem>
+                      )}
                     />
                   ))}
                 </div>
