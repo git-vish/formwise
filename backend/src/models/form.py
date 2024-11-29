@@ -80,6 +80,15 @@ class FormOverview(BaseModel):
     response_count: int
     created_at: datetime
 
+class FormOverview(BaseModel):
+    """Response model for a form (overview)."""
+
+    id: str
+    title: Title
+    is_active: bool
+    response_count: int
+    created_at: datetime
+
     @staticmethod
     def from_forms(form_list: list[Form]) -> list["FormOverview"]:
         """Creates a list of FormOverview instances from a list of Form instances,
