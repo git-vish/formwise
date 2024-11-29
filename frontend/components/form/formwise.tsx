@@ -54,9 +54,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface FormWiseProps {
   form: FormType;
+  preview?: boolean;
 }
 
-export default function FormWise({ form }: FormWiseProps) {
+export default function FormWise({ form, preview = false }: FormWiseProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const zodSchema = generateFormwiseSchema(form);
   const formHook = useForm<z.infer<typeof zodSchema>>({
@@ -377,7 +378,7 @@ export default function FormWise({ form }: FormWiseProps) {
                   <div key={field.tag}>{renderField(field)}</div>
                 ))}
               </div>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || preview}>
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </form>

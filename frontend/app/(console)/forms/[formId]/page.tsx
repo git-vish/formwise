@@ -33,7 +33,7 @@ export default function FormPage({ params }: FormPageProps) {
           </TabsList>
         </div>
         <TabsContent value="preview">
-          <FormWise form={form!} />
+          <FormWise form={form!} preview />
         </TabsContent>
         <TabsContent value="responses">
           <FormResponses formId={params.formId} />
