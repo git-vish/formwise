@@ -23,6 +23,7 @@ import { FormOverview } from "@/types/form";
 import { useMemo } from "react";
 import { formatDate } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToast } from "@/hooks/use-toast";
 
 interface FormCardProps {
   form: FormOverview;
@@ -30,6 +31,8 @@ interface FormCardProps {
 }
 
 export default function FormCard({ form, maxResponses }: FormCardProps) {
+  const { toast } = useToast();
+
   const remainingResponses = useMemo(
     () => maxResponses - form.response_count,
     [form.response_count, maxResponses]
@@ -40,8 +43,18 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
     [form.response_count, maxResponses]
   );
 
+  const handleShare = (): void => {
+    navigator.clipboard
+      .writeText(`${window.location.origin}/f/${form.id}`)
+      .then(() => {
+        toast({
+          description: "Link copied to clipboard",
+        });
+      });
+  };
+
   return (
-    <Link href="#">
+    <Link href={`/forms/${form.id}`}>
       <Card className="hover:border-primary">
         <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-2">
           <div className="space-y-1 max-w-[80%]">
@@ -57,7 +70,7 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleShare}>
                 <Share2Icon className="mr-2 h-4 w-4" /> Share
               </DropdownMenuItem>
               <DropdownMenuItem>

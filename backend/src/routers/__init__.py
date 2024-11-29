@@ -13,7 +13,9 @@ __all__ = [
 v1_router = APIRouter()
 
 
-@v1_router.get("/config", response_model=Config, status_code=status.HTTP_200_OK)
+@v1_router.get(
+    "/config", response_model=Config, status_code=status.HTTP_200_OK, tags=["Config"]
+)
 def get_config():
     """Retrieves app configuration."""
     return Config()

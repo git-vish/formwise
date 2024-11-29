@@ -1,4 +1,6 @@
 import { z } from "zod";
+import type { Form } from "@/types/form";
+import type { DateField, Field, NumberField } from "@/types/field";
 
 // Base schemas
 const emailSchema = z
@@ -64,3 +66,99 @@ export const editProfileSchema = z
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type EditProfileFormValues = z.infer<typeof editProfileSchema>;
+
+// Generate dynamic form schemas
+export function generateFormwiseSchema(form: Form) {
+  const schema: Record<string, z.ZodTypeAny> = {};
+
+  form.fields.forEach((field: Field) => {
+    let fieldSchema: z.ZodTypeAny;
+
+    switch (field.type) {
+      case "text":
+      case "paragraph":
+        fieldSchema = z
+          .string()
+          .min(
+            field.min_length,
+            `Minimum ${field.min_length} characters required`
+          )
+          .max(
+            field.max_length,
+            `Maximum ${field.max_length} characters allowed`
+          );
+        break;
+      case "select":
+      case "dropdown":
+        fieldSchema = z.enum(field.options as [string, ...string[]]);
+        break;
+      case "multi_select":
+        fieldSchema = z.array(z.string()).min(1, "Select at least one option");
+        break;
+      case "date":
+        fieldSchema = z.date();
+        if ((field as DateField).min_date) {
+          fieldSchema = (fieldSchema as z.ZodDate).min(
+            new Date((field as DateField).min_date!),
+            "Date is too early"
+          );
+        }
+        if ((field as DateField).max_date) {
+          fieldSchema = (fieldSchema as z.ZodDate).max(
+            new Date((field as DateField).max_date!),
+            "Date is too late"
+          );
+        }
+        break;
+      case "email":
+        fieldSchema = z.string().email("Invalid email address");
+        break;
+      case "number":
+        fieldSchema = z.number();
+        if ((field as NumberField).min_value !== null) {
+          fieldSchema = (fieldSchema as z.ZodNumber).min(
+            (field as NumberField).min_value!,
+            `Minimum value is ${(field as NumberField).min_value}`
+          );
+        }
+        if ((field as NumberField).max_value !== null) {
+          fieldSchema = (fieldSchema as z.ZodNumber).max(
+            (field as NumberField).max_value!,
+            `Maximum value is ${(field as NumberField).max_value}`
+          );
+        }
+        break;
+      case "url":
+        fieldSchema = z.string().url("Invalid URL");
+        break;
+      default:
+        fieldSchema = z.string();
+    }
+
+    if (field.required) {
+      if (
+        field.type === "text" ||
+        field.type === "paragraph" ||
+        field.type === "email" ||
+        field.type === "url"
+      ) {
+        fieldSchema = (fieldSchema as z.ZodString).min(
+          1,
+          `${field.label} is required`
+        );
+      } else {
+        fieldSchema = z
+          .union([fieldSchema, z.undefined()])
+          .refine((val) => val !== undefined, {
+            message: `${field.label} is required`,
+          });
+      }
+    } else {
+      fieldSchema = fieldSchema.optional();
+    }
+
+    schema[field.tag] = fieldSchema;
+  });
+
+  return z.object(schema);
+}
