@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, Annotated
 from beanie import Document, Link
 from pydantic import BaseModel, Field, field_validator
 
+from src.config import settings
 from src.models.field import FormField
 from src.models.user import UserPublic
 from src.utils import generate_unique_id
@@ -23,7 +24,11 @@ class FormCreate(BaseModel):
     ]
     fields: Annotated[
         list[FormField],
-        Field(default_factory=list, description="List of form fields"),
+        Field(
+            default_factory=list,
+            description="List of form fields",
+            max_length=settings.MAX_FIELDS,
+        ),
     ]
 
     @field_validator("fields")
@@ -48,15 +53,6 @@ class Form(Document, FormCreate):
     is_active: bool = True
     creator: Link["User"]
     created_at: Annotated[datetime, Field(default_factory=lambda: datetime.now(tz=UTC))]
-
-
-class FormUpdate(BaseModel):
-    """Request model for updating a form."""
-
-    title: Title | None = None
-    description: Description | None = None
-    fields: list[FormField] | None = None
-    is_active: bool | None = None
 
 
 class FormRead(BaseModel):

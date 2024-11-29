@@ -129,10 +129,7 @@ class TestCreateForm:
         form_data["fields"] = fields
 
         response = await client.post(BASE_URL, json=form_data, headers=auth_header)
-        assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response.json()["detail"] == (
-            f"Maximum number of fields ({settings.MAX_FIELDS}) exceeded."
-        )
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     async def test_create_form_empty_body(
         self, client: AsyncClient, auth_header: dict[str, str]

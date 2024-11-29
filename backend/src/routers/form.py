@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, status
 
 from src.config import settings
 from src.dependencies import (
@@ -13,7 +13,6 @@ from src.models.form import (
     FormCreate,
     FormOverview,
     FormRead,
-    FormUpdate,
 )
 
 logger = logging.getLogger(__name__)
@@ -33,12 +32,6 @@ async def create_form(form: FormCreate, user: CurrentUserWithLinks):
     if forms_count >= settings.MAX_FORMS:
         raise BadRequestError(
             f"Maximum number of forms ({settings.MAX_FORMS}) reached."
-        )
-
-    # Check fields limit
-    if len(form.fields) > settings.MAX_FIELDS:
-        raise BadRequestError(
-            f"Maximum number of fields ({settings.MAX_FIELDS}) exceeded."
         )
 
     # Create form
@@ -79,16 +72,6 @@ async def delete_form(form_id: str, user: CurrentUser):
     await form.delete()
     # TODO: Implement deletion of form submissions
     logger.info('Deleted Form: "%s" for User: %s', form.title, user)
-
-
-@router.patch(
-    "/{form_id}",
-    response_model=FormRead,
-    status_code=status.HTTP_200_OK,
-)
-async def update_form(form_id: str, update: FormUpdate, user: CurrentUserWithLinks):
-    """Updates an existing form (if owned by the user)."""
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 @router.get(
