@@ -80,7 +80,12 @@ export default function FormWise({ form }: FormWiseProps) {
             name={field.tag}
             render={({ field: formField }) => (
               <FormItem>
-                <FormLabel>{field.label}</FormLabel>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...formField}
@@ -103,7 +108,12 @@ export default function FormWise({ form }: FormWiseProps) {
             name={field.tag}
             render={({ field: formField }) => (
               <FormItem>
-                <FormLabel>{field.label}</FormLabel>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
                 <FormControl>
                   <Textarea {...formField} placeholder={field.label} />
                 </FormControl>
@@ -123,7 +133,12 @@ export default function FormWise({ form }: FormWiseProps) {
             name={field.tag}
             render={({ field: formField }) => (
               <FormItem>
-                <FormLabel>{field.label}</FormLabel>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
                 <Select
                   onValueChange={formField.onChange}
                   defaultValue={formField.value}
@@ -158,7 +173,12 @@ export default function FormWise({ form }: FormWiseProps) {
             name={field.tag}
             render={() => (
               <FormItem>
-                <FormLabel>{field.label}</FormLabel>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
                 <div className="space-y-2">
                   {(field as MultiSelectField).options.map((option: string) => (
                     <FormField
@@ -212,7 +232,12 @@ export default function FormWise({ form }: FormWiseProps) {
             name={field.tag}
             render={({ field: formField }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>{field.label}</FormLabel>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -256,7 +281,12 @@ export default function FormWise({ form }: FormWiseProps) {
             name={field.tag}
             render={({ field: formField }) => (
               <FormItem>
-                <FormLabel>{field.label}</FormLabel>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
                 <FormControl>
                   <Input
                     {...formField}
