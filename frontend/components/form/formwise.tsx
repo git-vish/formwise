@@ -50,6 +50,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface FormWiseProps {
   form: FormType;
@@ -64,7 +65,6 @@ export default function FormWise({ form }: FormWiseProps) {
 
   const onSubmit = async (data: z.infer<typeof zodSchema>) => {
     setIsSubmitting(true);
-    // Here you would typically send the data to your backend
     console.log(data);
     setIsSubmitting(false);
   };
@@ -126,6 +126,45 @@ export default function FormWise({ form }: FormWiseProps) {
           />
         );
       case "select":
+        return (
+          <FormField
+            control={formHook.control}
+            name={field.tag}
+            render={({ field: formField }) => (
+              <FormItem>
+                <FormLabel>
+                  {field.label}
+                  {field.required && (
+                    <span className="text-red-600 text-md"> *</span>
+                  )}
+                </FormLabel>
+                <FormControl>
+                  <RadioGroup
+                    onValueChange={formField.onChange}
+                    defaultValue={formField.value}
+                    className="flex flex-row space-x-4"
+                  >
+                    {(field as SelectField).options.map((option: string) => (
+                      <FormItem
+                        key={option}
+                        className="flex items-center space-x-2 space-y-0"
+                      >
+                        <FormControl>
+                          <RadioGroupItem value={option} />
+                        </FormControl>
+                        <FormLabel className="font-normal">{option}</FormLabel>
+                      </FormItem>
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+                {field.help_text && (
+                  <FormDescription>{field.help_text}</FormDescription>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        );
       case "dropdown":
         return (
           <FormField
