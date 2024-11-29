@@ -59,8 +59,8 @@ class FormUpdate(BaseModel):
     is_active: bool | None = None
 
 
-class FormReadPublic(BaseModel):
-    """Response model for a form (public)."""
+class FormRead(BaseModel):
+    """Response model for a form."""
 
     id: str
     title: Title
@@ -69,10 +69,6 @@ class FormReadPublic(BaseModel):
     is_active: bool
     creator: UserPublic
     created_at: datetime
-
-
-class FormRead(FormReadPublic):
-    """Response model for a form (creator)."""
 
 
 class FormOverview(BaseModel):
