@@ -25,14 +25,14 @@ export default function FormPage({ params }: FormPageProps) {
 
   return (
     <div className="container mx-auto p-4">
-      <Tabs defaultValue="questions">
+      <Tabs defaultValue="preview">
         <div className="flex justify-start md:justify-center">
           <TabsList>
-            <TabsTrigger value="questions">Questions</TabsTrigger>
+            <TabsTrigger value="preview">Preview</TabsTrigger>
             <TabsTrigger value="responses">Responses</TabsTrigger>
           </TabsList>
         </div>
-        <TabsContent value="questions">
+        <TabsContent value="preview">
           <FormWise form={form!} />
         </TabsContent>
         <TabsContent value="responses">
@@ -46,11 +46,11 @@ export default function FormPage({ params }: FormPageProps) {
 function FormPageSkeleton() {
   return (
     <div className="container mx-auto p-4">
-      <Tabs defaultValue="questions">
+      <Tabs defaultValue="preview">
         <div className="flex justify-start md:justify-center animate-pulse-bounce">
           <TabsList>
-            <TabsTrigger value="questions" disabled>
-              Questions
+            <TabsTrigger value="preview" disabled>
+              Preview
             </TabsTrigger>
             <TabsTrigger value="responses" disabled>
               Responses

@@ -18,6 +18,7 @@ export function useForm(formId: string) {
   return useQuery<Form>({
     queryKey: ["form", formId],
     queryFn: () => formService.getForm(formId),
+    retry: false,
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
