@@ -12,6 +12,7 @@ from src.config import configure_logging, settings
 from src.exceptions.handler import add_exception_handlers
 from src.models import DOCUMENT_MODELS
 from src.routers import include_routers
+from src.utils.form_generation import FormGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +40,10 @@ async def lifespan(app: FastAPI):
     # Initialize Beanie
     await init_beanie(database=app.state.db, document_models=DOCUMENT_MODELS)
     logger.info("Initialized database resources")
+
+    # Initialize form generator
+    app.state.form_generator = FormGenerator()
+    logger.info("Initialized form generator")
 
     yield
 
