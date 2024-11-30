@@ -43,7 +43,8 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
     [form.response_count, maxResponses]
   );
 
-  const handleShare = (): void => {
+  const handleShare = (event: React.MouseEvent<HTMLDivElement>): void => {
+    event.stopPropagation();
     navigator.clipboard
       .writeText(`${window.location.origin}/f/${form.id}`)
       .then(() => {
