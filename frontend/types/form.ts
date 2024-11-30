@@ -16,6 +16,7 @@ export interface FormsContextType {
   isLoading: boolean;
   error: Error | null;
   refreshForms: () => Promise<void>;
+  deleteForm: (id: string) => Promise<void>;
 }
 
 export interface Form extends BaseForm {

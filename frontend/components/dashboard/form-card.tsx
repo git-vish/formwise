@@ -49,7 +49,7 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
       .writeText(`${window.location.origin}/f/${form.id}`)
       .then(() => {
         toast({
-          description: "Link copied to clipboard",
+          title: "Link copied to clipboard",
         });
       });
   };

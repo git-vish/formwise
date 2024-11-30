@@ -15,4 +15,12 @@ export const formService = {
       endpoint: FORM_URLS.BY_ID(id),
     });
   },
+
+  async deleteForm(id: string): Promise<void> {
+    return await apiRequest<void>({
+      endpoint: FORM_URLS.BY_ID(id),
+      method: "DELETE",
+      requireAuth: true,
+    });
+  },
 };
