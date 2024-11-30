@@ -15,7 +15,7 @@ from pydantic import (
 )
 
 from src.utils import generate_unique_id
-from src.utils.types import HelpText, Option, Title
+from src.utils.custom_types import HelpText, Option, Title
 
 
 class FieldType(StrEnum):
