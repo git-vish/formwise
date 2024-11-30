@@ -35,17 +35,32 @@ _USER_PROMPT = """Based on the user input, generate a structured form definition
 
 Field Guidelines:
 1. Field Types:
-- Use text fields for open-ended responses like names, descriptions, and comments.
+- Use text fields for shorter responses.
+- Use paragraph fields for longer-form responses like descriptions, addresses, comments, etc.
 - Use specific field types such as email, numbers, dates, and url when applicable.
 - For predetermined options, use below field types:
     - "select" for radio button-like choices.
     - "dropdown" for long single-select lists.
     - "multi-select" for multiple-choice options.
+- In case of more than 5 single choice options, use "dropdown" instead of "select".
+- In case of rating scales, use "select" with string options like "good", "fair", "poor" etc. appropriately, DO NOT use numbers.
 
 2. Field Labels:
 - Ensure labels are clear, concise.
 - Avoid technical or overly verbose phrasing.
 - Avoid adding (optional) tag to field labels if field is not required.
+- Correct examples:
+    1. Email
+    2. Name
+    3. Comments
+    4. Date of Birth
+    5. Shipping Address
+- Incorrect examples:
+    1. Email (for follow-up)
+    2. Name (required)
+    3. Comments (max 500 words)
+    4. Date of Birth (MM/DD/YYYY)
+    5. Shipping Address (optional)
 
 3. Help Text:
 - Add help text if and only if additional context is necessary.
@@ -59,6 +74,7 @@ Field Guidelines:
 
 5. Options for Select field types:
 - Provide meaningful and comprehensive options for all select fields.
+- DO NOT ADD "other" AS AN OPTION.
 
 Notes:
 - Avoid redundancy in labels, help text, and field definitions.
@@ -96,19 +112,7 @@ class FormGenerator:
 
         Returns:
             FormCreate: The generated form.
-
-        Raises:
-            Exception: If the form generation fails.
         """
         today = str(datetime.now().date())
 
-        try:
-            form = await self._chain.ainvoke(
-                {"user_input": description, "today": today}
-            )
-
-            logger.info("Generated form: '%s'", form.title)
-            return form
-        except Exception as err:
-            logger.error("Failed to generate form: %s", err)
-            raise
+        return await self._chain.ainvoke({"user_input": description, "today": today})

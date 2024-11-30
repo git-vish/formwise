@@ -79,7 +79,11 @@ async def generate_form(
     validate_form_creation_limit(user)
 
     form_generator: FormGenerator = request.app.state.form_generator
-    form = await form_generator.generate_form(data.prompt)
+
+    try:
+        form = await form_generator.generate_form(data.prompt)
+    except Exception as err:
+        raise BadRequestError("Failed to generate form. Please try again.") from err
 
     if data.title:
         form.title = data.title
