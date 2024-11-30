@@ -17,6 +17,7 @@ export interface FormsContextType {
   error: Error | null;
   refreshForms: () => Promise<void>;
   deleteForm: (id: string) => Promise<void>;
+  createForm: (data: FormCreateValues) => Promise<void>;
 }
 
 export interface Form extends BaseForm {
@@ -27,4 +28,9 @@ export interface Form extends BaseForm {
     last_name: string;
     email: string;
   };
+}
+
+export interface FormCreateValues {
+  title?: string;
+  prompt: string;
 }

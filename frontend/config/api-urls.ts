@@ -22,4 +22,5 @@ export const USER_URLS = {
 export const FORM_URLS = {
   BASE: `${BASE_API_URL}/forms`,
   BY_ID: (id: string) => `${BASE_API_URL}/forms/${id}`,
+  CREATE: `${BASE_API_URL}/forms/generate`,
 };

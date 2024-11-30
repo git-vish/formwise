@@ -1,4 +1,4 @@
-import type { Form, FormOverview } from "@/types/form";
+import type { Form, FormCreateValues, FormOverview } from "@/types/form";
 import { apiRequest } from "@/lib/api";
 import { FORM_URLS } from "@/config/api-urls";
 
@@ -21,6 +21,19 @@ export const formService = {
       endpoint: FORM_URLS.BY_ID(id),
       method: "DELETE",
       requireAuth: true,
+    });
+  },
+
+  async createForm(data: FormCreateValues): Promise<Form> {
+    return await apiRequest<Form>({
+      endpoint: FORM_URLS.CREATE,
+      method: "POST",
+      payload: data,
+      requireAuth: true,
+      errorMessages: {
+        // use non tech user friendly messages
+        429: "Request limit reached. Try again shortly.",
+      },
     });
   },
 };

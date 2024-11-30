@@ -1,7 +1,7 @@
 "use client";
 
 import { formService } from "@/lib/services/form";
-import { FormOverview, FormsContextType } from "@/types/form";
+import { FormCreateValues, FormOverview, FormsContextType } from "@/types/form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useMemo } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -32,9 +32,7 @@ export function FormsProvider({ children }: { children: React.ReactNode }) {
   });
 
   const deleteFormMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await formService.deleteForm(id);
-    },
+    mutationFn: formService.deleteForm,
     onMutate: async (id: string) => {
       await queryClient.cancelQueries({ queryKey: ["forms"] });
       const previousForms = queryClient.getQueryData<FormOverview[]>(["forms"]);
@@ -74,6 +72,27 @@ export function FormsProvider({ children }: { children: React.ReactNode }) {
     [deleteFormMutation]
   );
 
+  const createFormMutation = useMutation({
+    mutationFn: formService.createForm,
+    onSuccess: (newForm) => {
+      refreshForms();
+      queryClient.setQueryData(["form", newForm.id], newForm);
+    },
+    onError: (error) => {
+      toast({
+        title: (error as Error).message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const createForm = useCallback(
+    async (data: FormCreateValues) => {
+      await createFormMutation.mutateAsync(data);
+    },
+    [createFormMutation]
+  );
+
   // Memoized context value
   const contextValue = useMemo<FormsContextType>(
     () => ({
@@ -84,8 +103,9 @@ export function FormsProvider({ children }: { children: React.ReactNode }) {
         await refreshForms();
       },
       deleteForm,
+      createForm,
     }),
-    [forms, authLoading, isLoading, error, deleteForm, refreshForms]
+    [forms, authLoading, isLoading, error, deleteForm, createForm, refreshForms]
   );
 
   return (
