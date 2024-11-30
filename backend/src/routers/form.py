@@ -79,7 +79,7 @@ async def generate_form(
     validate_form_creation_limit(user)
 
     form_generator: FormGenerator = request.app.state.form_generator
-    form = await form_generator.generate_form(data.description)
+    form = await form_generator.generate_form(data.prompt)
 
     if data.title:
         form.title = data.title

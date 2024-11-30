@@ -8,7 +8,7 @@ from src.config import settings
 from src.models.field import FormField
 from src.models.user import UserPublic
 from src.utils import generate_unique_id
-from src.utils.custom_types import Description, Title
+from src.utils.custom_types import Description, Prompt, Title
 
 if TYPE_CHECKING:  # pragma: no cover
     from src.models.user import User
@@ -102,11 +102,4 @@ class FormGenerate(BaseModel):
     """Request model for generating a form using a language model."""
 
     title: Title | None = None
-    description: Annotated[
-        str,
-        Field(
-            min_length=10,
-            max_length=500,
-            description="Detailed description of the form to be generated",
-        ),
-    ]
+    prompt: Prompt
