@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Request, status
 
 from src.config import settings
 from src.dependencies import (
@@ -11,13 +11,49 @@ from src.exceptions import BadRequestError, EntityNotFoundError, ForbiddenError
 from src.models.form import (
     Form,
     FormCreate,
+    FormGenerate,
     FormOverview,
     FormRead,
 )
+from src.models.user import User
+from src.utils.form_generation import FormGenerator
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/forms", tags=["Forms"])
+
+
+def validate_form_creation_limit(user: User):
+    """Validate user's form creation limit.
+
+    Args:
+        user (User): The user to validate.
+
+    Raises:
+        BadRequestError: If the user has reached the maximum number of forms.
+    """
+    forms_count = len(user.forms)
+    if forms_count >= settings.MAX_FORMS:
+        raise BadRequestError(
+            f"Maximum number of forms ({settings.MAX_FORMS}) reached."
+        )
+
+
+async def create_form_for_user(form: FormCreate, user: User) -> Form:
+    """Creates a new form for a given user.
+
+    Args:
+        form (FormCreate): The form data to create.
+        user (User): The user who owns the form.
+
+    Returns:
+        Form: The newly created form.
+    """
+    new_form = Form(**form.model_dump(), creator=user)
+    await new_form.create()
+
+    logger.info('Created Form: "%s" for User: %s', new_form.title, user)
+    return new_form
 
 
 @router.post(
@@ -27,19 +63,28 @@ router = APIRouter(prefix="/forms", tags=["Forms"])
 )
 async def create_form(form: FormCreate, user: CurrentUserWithLinks):
     """Creates a new form."""
-    # Check if user has reached form limit
-    forms_count = len(user.forms)
-    if forms_count >= settings.MAX_FORMS:
-        raise BadRequestError(
-            f"Maximum number of forms ({settings.MAX_FORMS}) reached."
-        )
+    validate_form_creation_limit(user)
+    return await create_form_for_user(form, user)
 
-    # Create form
-    new_form = Form(**form.model_dump(), creator=user)
-    await new_form.create()
 
-    logger.info('Created Form: "%s" for User: %s', new_form.title, user)
-    return new_form
+@router.post(
+    "/generate",
+    response_model=FormCreate,
+    status_code=status.HTTP_200_OK,
+)
+async def generate_form(
+    request: Request, data: FormGenerate, user: CurrentUserWithLinks
+):
+    """Generates a form based on the given description using a language model."""
+    validate_form_creation_limit(user)
+
+    form_generator: FormGenerator = request.app.state.form_generator
+    form = await form_generator.generate_form(data.description)
+
+    if data.title:
+        form.title = data.title
+
+    return await create_form_for_user(form, user)
 
 
 @router.get(

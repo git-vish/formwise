@@ -103,7 +103,6 @@ class FormGenerator:
         today = str(datetime.now().date())
 
         try:
-            logger.info("Generating form")
             form = await self._chain.ainvoke(
                 {"user_input": description, "today": today}
             )

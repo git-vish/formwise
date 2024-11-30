@@ -96,3 +96,17 @@ class FormOverview(BaseModel):
             )
             for form in form_list
         ]
+
+
+class FormGenerate(BaseModel):
+    """Request model for generating a form using a language model."""
+
+    title: Title | None = None
+    description: Annotated[
+        str,
+        Field(
+            min_length=10,
+            max_length=500,
+            description="Detailed description of the form to be generated",
+        ),
+    ]
