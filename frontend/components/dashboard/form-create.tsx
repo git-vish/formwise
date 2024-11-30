@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { useForms } from "@/hooks/use-forms";
 
 interface FormCreateProps {
   open: boolean;
@@ -29,13 +30,18 @@ interface FormCreateProps {
 }
 
 export default function FormCreate({ open, setIsOpen }: FormCreateProps) {
+  const { createForm } = useForms();
+
   const form = useForm<CreateFormFormValues>({
     resolver: zodResolver(createFormSchema),
   });
 
   const handleCreateForm = async (formData: CreateFormFormValues) => {
+    if (!formData.title) {
+      delete formData.title;
+    }
+    await createForm(formData);
     setIsOpen(false);
-    console.log(formData);
     form.reset();
   };
 

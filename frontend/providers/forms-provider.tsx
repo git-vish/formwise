@@ -77,6 +77,10 @@ export function FormsProvider({ children }: { children: React.ReactNode }) {
     onSuccess: (newForm) => {
       refreshForms();
       queryClient.setQueryData(["form", newForm.id], newForm);
+
+      toast({
+        title: "Form created successfully.",
+      });
     },
     onError: (error) => {
       toast({
