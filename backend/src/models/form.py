@@ -103,3 +103,7 @@ class FormGenerate(BaseModel):
 
     title: Title | None = None
     prompt: Prompt
+
+
+# Rebuild the model to resolve forward references
+Form.model_rebuild()
