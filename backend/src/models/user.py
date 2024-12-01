@@ -86,7 +86,3 @@ class UserPublic(BaseModel):
     first_name: Name
     last_name: Name
     email: EmailStr
-
-
-# Rebuild the model to resolve forward references
-User.model_rebuild()

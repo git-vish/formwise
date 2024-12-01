@@ -5,10 +5,6 @@ from src.config import settings
 from .form import Form
 from .user import User
 
-# Resolve references for all models
-Form.model_rebuild()
-User.model_rebuild()
-
 
 class Config(BaseModel):
     """Response model for config."""

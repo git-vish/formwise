@@ -17,8 +17,7 @@ repos:
     hooks:
       - id: requirements-txt
         name: Update requirements.txt
-        entry: bash -c 'cd backend && uv pip compile pyproject.toml > requirements.txt'
+        entry: bash -c 'cd backend && uv pip freeze > requirements.txt'
         language: system
         pass_filenames: false
         files: ^backend/pyproject\.toml$
-
