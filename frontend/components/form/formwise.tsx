@@ -143,7 +143,6 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
                   <RadioGroup
                     onValueChange={formField.onChange}
                     defaultValue={formField.value}
-                    className="flex flex-row space-x-4"
                   >
                     {(field as SelectField).options.map((option: string) => (
                       <FormItem
