@@ -4,7 +4,7 @@ import pytest
 from fastapi import FastAPI, status
 from httpx import ASGITransport, AsyncClient
 
-from src.middlewares import RateLimitMiddleware
+from src.middlewares.rate_limit import RateLimitMiddleware
 
 LIMITED_PATH = "/limited"
 NON_LIMITED_PATH = "/unlimited"
