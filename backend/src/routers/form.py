@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, Request, status
 
 from src.config import settings
 from src.dependencies import (
@@ -11,14 +11,49 @@ from src.exceptions import BadRequestError, EntityNotFoundError, ForbiddenError
 from src.models.form import (
     Form,
     FormCreate,
+    FormGenerate,
     FormOverview,
     FormRead,
-    FormUpdate,
 )
+from src.models.user import User
+from src.utils.form_generation import FormGenerator
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/forms", tags=["Forms"])
+
+
+def validate_form_creation_limit(user: User):
+    """Validate user's form creation limit.
+
+    Args:
+        user (User): The user to validate.
+
+    Raises:
+        BadRequestError: If the user has reached the maximum number of forms.
+    """
+    forms_count = len(user.forms)
+    if forms_count >= settings.MAX_FORMS:
+        raise BadRequestError(
+            f"Maximum number of forms ({settings.MAX_FORMS}) reached."
+        )
+
+
+async def create_form_for_user(form: FormCreate, user: User) -> Form:
+    """Creates a new form for a given user.
+
+    Args:
+        form (FormCreate): The form data to create.
+        user (User): The user who owns the form.
+
+    Returns:
+        Form: The newly created form.
+    """
+    new_form = Form(**form.model_dump(), creator=user)
+    await new_form.create()
+
+    logger.info('Created Form: "%s" for User: %s', new_form.title, user)
+    return new_form
 
 
 @router.post(
@@ -28,25 +63,32 @@ router = APIRouter(prefix="/forms", tags=["Forms"])
 )
 async def create_form(form: FormCreate, user: CurrentUserWithLinks):
     """Creates a new form."""
-    # Check if user has reached form limit
-    forms_count = len(user.forms)
-    if forms_count >= settings.MAX_FORMS:
-        raise BadRequestError(
-            f"Maximum number of forms ({settings.MAX_FORMS}) reached."
-        )
+    validate_form_creation_limit(user)
+    return await create_form_for_user(form, user)
 
-    # Check fields limit
-    if len(form.fields) > settings.MAX_FIELDS:
-        raise BadRequestError(
-            f"Maximum number of fields ({settings.MAX_FIELDS}) exceeded."
-        )
 
-    # Create form
-    new_form = Form(**form.model_dump(), creator=user)
-    await new_form.create()
+@router.post(
+    "/generate",
+    response_model=FormCreate,
+    status_code=status.HTTP_200_OK,
+)
+async def generate_form(
+    request: Request, data: FormGenerate, user: CurrentUserWithLinks
+):
+    """Generates a form based on the given description using a language model."""
+    validate_form_creation_limit(user)
 
-    logger.info('Created Form: "%s" for User: %s', new_form.title, user)
-    return new_form
+    form_generator: FormGenerator = request.app.state.form_generator
+
+    try:
+        form = await form_generator.generate_form(data.prompt)
+    except Exception as err:
+        raise BadRequestError("Failed to generate form. Please try again.") from err
+
+    if data.title:
+        form.title = data.title
+
+    return await create_form_for_user(form, user)
 
 
 @router.get(
@@ -79,16 +121,6 @@ async def delete_form(form_id: str, user: CurrentUser):
     await form.delete()
     # TODO: Implement deletion of form submissions
     logger.info('Deleted Form: "%s" for User: %s', form.title, user)
-
-
-@router.patch(
-    "/{form_id}",
-    response_model=FormRead,
-    status_code=status.HTTP_200_OK,
-)
-async def update_form(form_id: str, update: FormUpdate, user: CurrentUserWithLinks):
-    """Updates an existing form (if owned by the user)."""
-    raise HTTPException(status_code=status.HTTP_501_NOT_IMPLEMENTED)
 
 
 @router.get(

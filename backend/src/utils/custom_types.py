@@ -24,3 +24,7 @@ type Option = Annotated[str, StringConstraints(min_length=1, strip_whitespace=Tr
 type Description = Annotated[
     str, StringConstraints(min_length=1, max_length=300, strip_whitespace=True)
 ]
+
+type Prompt = Annotated[
+    str, StringConstraints(min_length=50, max_length=1000, strip_whitespace=True)
+]

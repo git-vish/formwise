@@ -109,9 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient, router]);
 
   const updateUserMutation = useMutation({
-    mutationFn: async (update: Partial<User>) => {
-      return authService.updateUser(update);
-    },
+    mutationFn: authService.updateUser,
     onSuccess: (updatedUser) => {
       queryClient.setQueryData(["user"], updatedUser);
       toast({
@@ -122,7 +120,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUser = useCallback(
     async (update: Partial<User>) => {
-      updateUserMutation.mutate(update);
+      await updateUserMutation.mutateAsync(update);
     },
     [updateUserMutation]
   );

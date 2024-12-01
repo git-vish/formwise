@@ -91,7 +91,7 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
                   <Input
                     {...formField}
                     type={field.type}
-                    placeholder={field.label}
+                    placeholder="Your answer"
                   />
                 </FormControl>
                 {field.help_text && (
@@ -116,7 +116,7 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
                   )}
                 </FormLabel>
                 <FormControl>
-                  <Textarea {...formField} placeholder={field.label} />
+                  <Textarea {...formField} placeholder="Your Answer" />
                 </FormControl>
                 {field.help_text && (
                   <FormDescription>{field.help_text}</FormDescription>
@@ -335,7 +335,7 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
                     type="number"
                     min={field.min_value ?? undefined}
                     max={field.max_value ?? undefined}
-                    placeholder={field.label}
+                    placeholder="Your Answer"
                     onChange={(e) => {
                       const value =
                         e.target.value === ""
