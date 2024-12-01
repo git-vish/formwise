@@ -34,3 +34,13 @@ export interface FormCreateValues {
   title?: string;
   prompt: string;
 }
+
+export interface Form extends BaseForm {
+  description: string | null;
+  fields: Field[];
+  creator: {
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
