@@ -31,7 +31,6 @@ export const formService = {
       payload: data,
       requireAuth: true,
       errorMessages: {
-        // use non tech user friendly messages
         429: "Request limit reached. Try again shortly.",
       },
     });
