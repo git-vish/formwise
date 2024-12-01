@@ -6,7 +6,7 @@ from uuid import uuid4
 from beanie import BackLink, Document, Indexed
 from pydantic import BaseModel, EmailStr, Field, HttpUrl
 
-from src.utils.types import Name, Password
+from src.utils.custom_types import Name, Password
 
 if TYPE_CHECKING:  # pragma: no cover
     from src.models.form import Form

@@ -62,10 +62,25 @@ export const editProfileSchema = z
     path: ["confirmPassword"],
   });
 
+export const createFormSchema = z.object({
+  title: z
+    .string()
+    .max(100, "Title cannot exceed 100 characters")
+    .optional()
+    .refine((title) => !title || title.trim().length > 0, {
+      message: "Title cannot be empty",
+    }),
+  prompt: z
+    .string()
+    .min(50, "Prompt must be at least 50 characters")
+    .max(500, "Prompt cannot exceed 500 characters"),
+});
+
 // Types
 export type LoginFormValues = z.infer<typeof loginSchema>;
 export type RegisterFormValues = z.infer<typeof registerSchema>;
 export type EditProfileFormValues = z.infer<typeof editProfileSchema>;
+export type CreateFormFormValues = z.infer<typeof createFormSchema>;
 
 // Generate dynamic form schemas
 export function generateFormwiseSchema(form: Form) {

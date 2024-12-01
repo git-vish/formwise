@@ -16,6 +16,23 @@ export interface FormsContextType {
   isLoading: boolean;
   error: Error | null;
   refreshForms: () => Promise<void>;
+  deleteForm: (id: string) => Promise<void>;
+  createForm: (data: FormCreateValues) => Promise<void>;
+}
+
+export interface Form extends BaseForm {
+  description: string | null;
+  fields: Field[];
+  creator: {
+    first_name: string;
+    last_name: string;
+    email: string;
+  };
+}
+
+export interface FormCreateValues {
+  title?: string;
+  prompt: string;
 }
 
 export interface Form extends BaseForm {

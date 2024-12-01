@@ -1,6 +1,9 @@
+from typing import Literal
+
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from src.utils.types import MongoDsn
+from src.utils.custom_types import MongoDsn
 
 
 class Settings(BaseSettings):
@@ -34,10 +37,36 @@ class Settings(BaseSettings):
     MAX_FIELDS: int = 50
     MAX_RESPONSES: int = 150  # per form
 
+    # *** LLM settings ***
+    GROQ_API_KEY: str
+    GROQ_MODEL: str = "llama-3.1-70b-versatile"
+    GROQ_TEMPERATURE: float = 0.5
+
+    # *** LangSmith settings ***
+    LANGCHAIN_API_KEY: str
+    LANGCHAIN_ENDPOINT: str
+    LANGCHAIN_PROJECT: str
+    LANGCHAIN_TRACING_V2: Literal["true", "false"]
+
+    # *** Rate Limit settings ***
+    RATE_LIMIT_DELTA: int = 60  # in seconds
+    RATE_LIMIT_LIMIT: int = 10
+
     @property
     def allowed_origins(self) -> list[str]:
         """Returns a list of allowed origins."""
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
 
-settings = Settings()
+def get_settings() -> Settings:
+    """
+    Returns an instance of `Settings`.
+
+    Returns:
+        Settings: A settings instance.
+    """
+    load_dotenv()
+    return Settings()
+
+
+settings = get_settings()

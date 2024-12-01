@@ -66,6 +66,11 @@ jobs:
           MONGO_URI: ${{ secrets.MONGO_CONNECTION_STRING }}
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          LANGCHAIN_API_KEY: ${{ secrets.LANGCHAIN_API_KEY }}
+          LANGCHAIN_ENDPOINT: "https://api.smith.langchain.com"
+          LANGCHAIN_TRACING_V2: "false"
+          LANGCHAIN_PROJECT: "project"
         run: uv run pytest -n auto --cov=src --cov-report=xml
 
       - name: Upload coverage to Codecov
