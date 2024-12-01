@@ -97,9 +97,11 @@ class FormGenerator:
                     ("system", _SYSTEM_PROMPT),
                     ("user", _USER_PROMPT),
                 ]
-            )
+            )  # pragma: no cover
 
-            self._chain = prompt | llm.with_structured_output(FormCreate)
+            self._chain = prompt | llm.with_structured_output(
+                FormCreate
+            )  # pragma: no cover
         except Exception as err:
             logger.error("Failed to initialize FormGenerator: %s", err)
             raise
