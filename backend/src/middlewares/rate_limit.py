@@ -6,6 +6,8 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
 
+from src.config import settings
+
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Middleware to limit the rate of requests to specific paths."""
@@ -14,8 +16,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self,
         app: ASGIApp,
         paths: list[str],
-        delta: int = 60,
-        limit: int = 10,
+        delta: int = settings.RATE_LIMIT_DELTA,
+        limit: int = settings.RATE_LIMIT_LIMIT,
     ):
         super().__init__(app)
         self.paths = paths

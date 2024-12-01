@@ -48,6 +48,10 @@ class Settings(BaseSettings):
     LANGCHAIN_PROJECT: str
     LANGCHAIN_TRACING_V2: Literal["true", "false"]
 
+    # *** Rate Limit settings ***
+    RATE_LIMIT_DELTA: int = 60  # in seconds
+    RATE_LIMIT_LIMIT: int = 10
+
     @property
     def allowed_origins(self) -> list[str]:
         """Returns a list of allowed origins."""
