@@ -2,14 +2,13 @@ import logging
 from contextlib import asynccontextmanager
 
 import logfire
-from asgi_correlation_id import CorrelationIdMiddleware
 from beanie import init_beanie
 from fastapi import FastAPI, status
 from motor.motor_asyncio import AsyncIOMotorClient
-from starlette.middleware.cors import CORSMiddleware
 
 from src.config import configure_logging, settings
 from src.exceptions.handler import add_exception_handlers
+from src.middlewares import add_middlewares
 from src.models import DOCUMENT_MODELS
 from src.routers import include_routers
 from src.utils.form_generation import FormGenerator
@@ -63,17 +62,9 @@ if settings.LOGFIRE_TOKEN:
     logfire.instrument_fastapi(app, excluded_urls=r"^(https?://[^/]+)?/[^/]+/?$")
 
 # Add middlewares
-app.add_middleware(CorrelationIdMiddleware)
+add_middlewares(app)
 
-# Place CORS middleware last(executes first) in the middleware stack
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.allowed_origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+# Add exception handlers
 add_exception_handlers(app)
 
 # Include routers
