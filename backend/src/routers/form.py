@@ -139,7 +139,7 @@ async def get_forms(user: CurrentUserWithLinks):
 
 
 @router.post(
-    "{form_id}/submit",
+    "/{form_id}/submit",
     status_code=status.HTTP_200_OK,
 )
 async def submit_response(form_id: str, submission: FormSubmission):
