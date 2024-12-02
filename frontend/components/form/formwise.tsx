@@ -49,7 +49,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface FormWiseProps {
@@ -398,41 +397,3 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
     </div>
   );
 }
-
-function FormWiseSkeleton() {
-  return (
-    <div className="max-w-2xl mx-auto my-8 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Skeleton className="h-8 w-3/4" />
-          </CardTitle>
-          <CardDescription>
-            <Skeleton className="h-4 w-1/2" />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="space-y-2">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            ))}
-          </div>
-          <div className="mt-8">
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <div className="space-y-2 w-full">
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
-  );
-}
-
-FormWise.Skeleton = FormWiseSkeleton;

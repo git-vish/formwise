@@ -73,7 +73,10 @@ export const createFormSchema = z.object({
   prompt: z
     .string()
     .min(50, "Prompt must be at least 50 characters")
-    .max(500, "Prompt cannot exceed 500 characters"),
+    .max(500, "Prompt cannot exceed 500 characters")
+    .refine((prompt) => prompt.trim().length > 50, {
+      message: "Prompt must be at least 50 characters",
+    }),
 });
 
 // Types
