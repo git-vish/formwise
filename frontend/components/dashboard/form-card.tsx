@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   MoreVerticalIcon,
-  TypeIcon,
   Share2Icon,
   Trash2Icon,
   ClockIcon,
@@ -81,9 +80,6 @@ export default function FormCard({ form, maxResponses }: FormCardProps) {
               <DropdownMenuContent align="end" className="w-48">
                 <DropdownMenuItem onClick={handleShare}>
                   <Share2Icon className="mr-2 h-4 w-4" /> Share
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <TypeIcon className="mr-2 h-4 w-4" /> Rename
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
