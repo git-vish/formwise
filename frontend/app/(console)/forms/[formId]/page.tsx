@@ -1,10 +1,10 @@
 "use client";
 
-import FormResponses from "@/components/form/form-responses";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FormWise from "@/components/form/formwise";
 import { useForm } from "@/hooks/use-forms";
 import { useRouter } from "next/navigation";
+import FormWise from "@/components/form/formwise";
+import FormResponses from "@/components/form/form-responses";
 
 interface FormPageProps {
   params: {
