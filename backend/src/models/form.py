@@ -1,5 +1,6 @@
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING, Annotated, Any
+from uuid import uuid4
 
 from beanie import Document, Link
 from pydantic import BaseModel, Field, field_validator
@@ -67,6 +68,23 @@ class FormRead(BaseModel):
     created_at: datetime
 
 
+class FormSubmission(BaseModel):
+    """Request model for submitting a form."""
+
+    answers: dict[str, Any]
+
+
+class FormResponse(Document, FormSubmission):
+    """Database model for a form submission"""
+
+    class Settings:
+        name = "responses"
+
+    id: Annotated[str, Field(default_factory=lambda: uuid4().hex)]
+    form: Link[Form]
+    created_at: Annotated[datetime, Field(default_factory=lambda: datetime.now(tz=UTC))]
+
+
 class FormOverview(BaseModel):
     """Response model for a form (overview)."""
 
@@ -77,7 +95,7 @@ class FormOverview(BaseModel):
     created_at: datetime
 
     @staticmethod
-    def from_forms(form_list: list[Form]) -> list["FormOverview"]:
+    async def from_forms(form_list: list[Form]) -> list["FormOverview"]:
         """Creates a list of FormOverview instances from a list of Form instances,
         sorted by creation date in descending order.
 
@@ -91,8 +109,9 @@ class FormOverview(BaseModel):
         return [
             FormOverview(
                 **form.model_dump(),
-                # TODO: Add response count
-                response_count=0,
+                response_count=await FormResponse.find(
+                    FormResponse.form.id == form.id
+                ).count(),
             )
             for form in form_list
         ]
