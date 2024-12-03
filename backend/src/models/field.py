@@ -260,7 +260,12 @@ class URLField(BaseField):
     type: Literal[FieldType.URL] = FieldType.URL
 
     def validate_answer(self, answer: str) -> str:
-        return AnyHttpUrl(answer).unicode_string()
+        try:
+            return AnyHttpUrl(answer).unicode_string()
+        except ValueError as err:
+            raise ValueError(
+                "Answer must be a valid URL. Example: https://example.com"
+            ) from err
 
 
 # Type alias

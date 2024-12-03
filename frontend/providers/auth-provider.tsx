@@ -131,7 +131,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const checkToken = () => {
       const token = tokenService.token.get();
-      if (token && !tokenService.token.isValid(token)) {
+      if (!token || !tokenService.token.isValid(token)) {
         logout();
       }
     };

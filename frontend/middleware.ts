@@ -4,7 +4,7 @@ import { COOKIE_NAME } from "./lib/services/token";
 
 const ROUTE_CONFIG = {
   guestOnly: new Set(["/", "/login", "/register", "/forgot-password"]),
-  authRequired: new Set(["/dashboard", "/forms"]), // Forms base route
+  authRequired: ["/dashboard", "/forms"], // Forms base route
 } as const;
 
 export function middleware(request: NextRequest) {
@@ -16,11 +16,7 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL("/dashboard", request.url));
     }
   } else {
-    if (
-      Array.from(ROUTE_CONFIG.authRequired).some((route) =>
-        pathname.startsWith(route)
-      )
-    ) {
+    if (ROUTE_CONFIG.authRequired.some((route) => pathname.startsWith(route))) {
       return NextResponse.redirect(new URL("/login", request.url));
     }
   }

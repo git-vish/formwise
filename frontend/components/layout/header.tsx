@@ -8,14 +8,20 @@ import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "../theme-toggle";
 import UserMenu from "@/components/auth/user-menu";
 
-const AuthPages = new Set(["/login", "/register", "/forgot-password"]);
+const EXCLUDED_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/f/",
+  "/success",
+];
 
 export default function Header() {
   const router = useRouter();
   const pathname = usePathname();
   const { user, logout, isLoading: authLoading, updateUser } = useAuth();
 
-  if (AuthPages.has(pathname)) {
+  if (EXCLUDED_ROUTES.some((route) => pathname.startsWith(route))) {
     return null;
   }
 

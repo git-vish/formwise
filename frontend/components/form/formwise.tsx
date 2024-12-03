@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form as FormType } from "@/types/form";
@@ -49,8 +49,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { FORM_URLS } from "@/config/api-urls";
+import { useRouter } from "next/navigation";
 
 interface FormWiseProps {
   form: FormType;
@@ -58,16 +59,60 @@ interface FormWiseProps {
 }
 
 export default function FormWise({ form, preview = false }: FormWiseProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
   const zodSchema = generateFormwiseSchema(form);
   const formHook = useForm<z.infer<typeof zodSchema>>({
     resolver: zodResolver(zodSchema),
   });
 
-  const onSubmit = async (data: z.infer<typeof zodSchema>) => {
-    setIsSubmitting(true);
-    console.log(data);
-    setIsSubmitting(false);
+  const handleSubmit = async (data: z.infer<typeof zodSchema>) => {
+    const filteredData = Object.fromEntries(
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      Object.entries(data).filter(([_, value]) => value != null && value !== "")
+    );
+
+    Object.keys(filteredData).forEach((key) => {
+      if (key.startsWith("date-")) {
+        filteredData[key] = new Date(filteredData[key] as string)
+          .toISOString()
+          .split("T")[0];
+      }
+    });
+
+    try {
+      const response = await fetch(FORM_URLS.SUBMIT(form.id), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ answers: filteredData }),
+      });
+
+      if (response.ok) {
+        router.push("/success");
+        return;
+      }
+
+      const errorData = await response.json();
+      if (response.status === 400 && errorData.detail) {
+        Object.entries(errorData.detail).forEach(([fieldTag, errorMessage]) => {
+          formHook.setError(fieldTag, {
+            type: "manual",
+            message: errorMessage as string,
+          });
+        });
+        return;
+      }
+
+      throw new Error(await response.text());
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast({
+        variant: "destructive",
+        title: "Something went wrong. Please try again.",
+      });
+    }
   };
 
   const renderField = (field: Field) => {
@@ -367,25 +412,34 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
           )}
         </CardHeader>
         <CardContent>
-          <Form {...formHook}>
-            <form
-              onSubmit={formHook.handleSubmit(onSubmit)}
-              className="space-y-8"
-            >
-              <div className="space-y-6">
-                {form.fields.map((field: Field) => (
-                  <div key={field.tag}>{renderField(field)}</div>
-                ))}
-              </div>
-              <Button type="submit" disabled={isSubmitting || preview}>
-                {isSubmitting ? "Submitting..." : "Submit"}
-              </Button>
-            </form>
-          </Form>
+          {form.is_active || preview ? (
+            <Form {...formHook}>
+              <form
+                onSubmit={formHook.handleSubmit(handleSubmit)}
+                className="space-y-8"
+              >
+                <div className="space-y-6">
+                  {form.fields.map((field: Field) => (
+                    <div key={field.tag}>{renderField(field)}</div>
+                  ))}
+                </div>
+                <Button
+                  type="submit"
+                  disabled={formHook.formState.isSubmitting || preview}
+                >
+                  {formHook.formState.isSubmitting ? "Submitting..." : "Submit"}
+                </Button>
+              </form>
+            </Form>
+          ) : (
+            <p className="italic">
+              This form is no longer accepting responses.
+            </p>
+          )}
         </CardContent>
         <CardFooter>
           <div className="text-sm text-muted-foreground">
-            By: {form.creator.first_name} {form.creator.last_name} · {""}
+            {form.creator.first_name} {form.creator.last_name} · {""}
             <a
               href={`mailto:${form.creator.email}`}
               className="text-primary hover:underline"
@@ -398,41 +452,3 @@ export default function FormWise({ form, preview = false }: FormWiseProps) {
     </div>
   );
 }
-
-function FormWiseSkeleton() {
-  return (
-    <div className="max-w-2xl mx-auto my-8 space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <Skeleton className="h-8 w-3/4" />
-          </CardTitle>
-          <CardDescription>
-            <Skeleton className="h-4 w-1/2" />
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-6">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="space-y-2">
-                <Skeleton className="h-4 w-1/3" />
-                <Skeleton className="h-10 w-full" />
-              </div>
-            ))}
-          </div>
-          <div className="mt-8">
-            <Skeleton className="h-10 w-full" />
-          </div>
-        </CardContent>
-        <CardFooter>
-          <div className="space-y-2 w-full">
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
-          </div>
-        </CardFooter>
-      </Card>
-    </div>
-  );
-}
-
-FormWise.Skeleton = FormWiseSkeleton;

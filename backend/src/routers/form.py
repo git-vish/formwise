@@ -14,6 +14,8 @@ from src.models.form import (
     FormGenerate,
     FormOverview,
     FormRead,
+    FormResponse,
+    FormSubmission,
 )
 from src.models.user import User
 from src.utils.form_generation import FormGenerator
@@ -52,7 +54,7 @@ async def create_form_for_user(form: FormCreate, user: User) -> Form:
     new_form = Form(**form.model_dump(), creator=user)
     await new_form.create()
 
-    logger.info('Created Form: "%s" for User: %s', new_form.title, user)
+    logger.info('Created Form: "%s" for User: %s', new_form.id, user)
     return new_form
 
 
@@ -100,7 +102,7 @@ async def get_form(form_id: str):
     """Retrieves a form."""
     form = await Form.get(form_id, fetch_links=True)
     if not form:
-        raise EntityNotFoundError("Form not found")
+        raise EntityNotFoundError("Form not found.")
 
     return FormRead(**form.model_dump())
 
@@ -113,14 +115,17 @@ async def delete_form(form_id: str, user: CurrentUser):
     """Deletes a form and its submissions (if owned by the user)."""
     form = await Form.get(form_id, fetch_links=True)
     if not form:
-        raise EntityNotFoundError("Form not found")
+        raise EntityNotFoundError("Form not found.")
 
     if form.creator.id != user.id:
         raise ForbiddenError("Not authorized to delete this form.")
 
+    # Delete form responses
+    await FormResponse.find(FormResponse.form.id == form.id).delete()
+    # Delete form
     await form.delete()
-    # TODO: Implement deletion of form submissions
-    logger.info('Deleted Form: "%s" for User: %s', form.title, user)
+
+    logger.info('Deleted Form: "%s" for User: %s', form.id, user)
 
 
 @router.get(
@@ -130,4 +135,54 @@ async def delete_form(form_id: str, user: CurrentUser):
 )
 async def get_forms(user: CurrentUserWithLinks):
     """Retrieves a list of user's forms."""
-    return FormOverview.from_forms(user.forms)
+    return await FormOverview.from_forms(user.forms)
+
+
+@router.post(
+    "/{form_id}/submit",
+    status_code=status.HTTP_200_OK,
+)
+async def submit_response(form_id: str, submission: FormSubmission):
+    """Submits a form response."""
+    form = await Form.get(form_id)
+    if not form:
+        raise EntityNotFoundError("Form not found.")
+
+    if not form.is_active:
+        raise ForbiddenError("Form is not active.")
+
+    # Validate submission
+    invalid_fields = {}
+    validated_answers = {}
+
+    for field in form.fields:
+        answer = submission.answers.get(field.tag)
+
+        if not answer:
+            if field.required:
+                invalid_fields[field.tag] = "Field is required."
+            else:
+                validated_answers[field.tag] = None
+            continue
+
+        try:
+            validated_answers[field.tag] = field.validate_answer(answer)
+        except ValueError as err:
+            invalid_fields[field.tag] = str(err)
+
+    if invalid_fields:
+        raise BadRequestError(invalid_fields)
+
+    # Save form response
+    new_response = FormResponse(form=form, answers=validated_answers)
+    await new_response.create()
+    logger.info("Submitted response for form: %s", form.id)
+
+    # Check if form response limit has been reached
+    response_count = await FormResponse.find(FormResponse.form.id == form.id).count()
+    if response_count >= settings.MAX_RESPONSES:
+        form.is_active = False
+        await form.save()
+        logger.info("Form response limit reached, disabling form: %s", form.id)
+
+    return {"detail": "Form response submitted successfully."}
