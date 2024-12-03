@@ -25,20 +25,26 @@ export default function FormPage({ params }: FormPageProps) {
 
   return (
     <div className="container mx-auto p-4">
-      <Tabs defaultValue="preview">
-        <div className="flex justify-start md:justify-center">
-          <TabsList>
-            <TabsTrigger value="preview">Preview</TabsTrigger>
-            <TabsTrigger value="responses">Responses</TabsTrigger>
-          </TabsList>
-        </div>
-        <TabsContent value="preview">
-          <FormWise form={form!} preview />
-        </TabsContent>
-        <TabsContent value="responses">
-          <FormResponses formId={params.formId} />
-        </TabsContent>
-      </Tabs>
+      <section className="flex justify-start md:justify-center mb-4">
+        <h1 className="text-2xl font-bold">{form?.title}</h1>
+      </section>
+
+      <main>
+        <Tabs defaultValue="preview">
+          <div className="flex justify-start md:justify-center">
+            <TabsList>
+              <TabsTrigger value="preview">Preview</TabsTrigger>
+              <TabsTrigger value="responses">Responses</TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="preview">
+            <FormWise form={form!} preview />
+          </TabsContent>
+          <TabsContent value="responses">
+            <FormResponses formId={params.formId} />
+          </TabsContent>
+        </Tabs>
+      </main>
     </div>
   );
 }
