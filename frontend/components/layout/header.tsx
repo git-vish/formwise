@@ -8,7 +8,13 @@ import { useAuth } from "@/hooks/use-auth";
 import { ThemeToggle } from "../theme-toggle";
 import UserMenu from "@/components/auth/user-menu";
 
-const EXCLUDED_ROUTES = ["/login", "/register", "/forgot-password", "/f/"];
+const EXCLUDED_ROUTES = [
+  "/login",
+  "/register",
+  "/forgot-password",
+  "/f/",
+  "/success",
+];
 
 export default function Header() {
   const router = useRouter();
