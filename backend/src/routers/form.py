@@ -15,6 +15,7 @@ from src.models.form import (
     FormOverview,
     FormRead,
     FormResponse,
+    FormResponseRead,
     FormSubmission,
 )
 from src.models.user import User
@@ -186,3 +187,28 @@ async def submit_response(form_id: str, submission: FormSubmission):
         logger.info("Form response limit reached, disabling form: %s", form.id)
 
     return {"detail": "Form response submitted successfully."}
+
+
+@router.get(
+    "/{form_id}/responses",
+    response_model=list[FormResponseRead],
+    status_code=status.HTTP_200_OK,
+)
+async def get_form_responses(
+    form_id: str, user: CurrentUser, limit: int = 10, skip: int = 0
+):
+    """Retrieves a list of form responses."""
+    form = await Form.get(form_id, fetch_links=True)
+    if not form:
+        raise EntityNotFoundError("Form not found.")
+
+    if form.creator.id != user.id:
+        raise ForbiddenError("Not authorized to view this form.")
+
+    return (
+        await FormResponse.find(FormResponse.form.id == form.id)
+        .sort("-created_at")
+        .limit(limit)
+        .skip(skip)
+        .to_list()
+    )
