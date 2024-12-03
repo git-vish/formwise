@@ -1,5 +1,6 @@
 export const siteConfig = {
   name: "FormWise",
+  description: "Create forms using AI.",
   author: "Vishwajeet Ghatage",
   authorUrl: "https://vishwajeet.xyz",
   links: {

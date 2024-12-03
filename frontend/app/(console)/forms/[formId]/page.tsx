@@ -41,7 +41,7 @@ export default function FormPage({ params }: FormPageProps) {
             <FormWise form={form!} preview />
           </TabsContent>
           <TabsContent value="responses">
-            <FormResponses formId={params.formId} />
+            <FormResponses form={form!} />
           </TabsContent>
         </Tabs>
       </main>

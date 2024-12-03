@@ -24,4 +24,6 @@ export const FORM_URLS = {
   BY_ID: (id: string) => `${BASE_API_URL}/forms/${id}`,
   CREATE: `${BASE_API_URL}/forms/generate`,
   SUBMIT: (id: string) => `${BASE_API_URL}/forms/${id}/submit`,
+  RESPONSES: (id: string, limit: number, skip: number) => `
+    ${BASE_API_URL}/forms/${id}/responses?limit=${limit}&skip=${skip}`,
 };

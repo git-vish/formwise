@@ -122,3 +122,11 @@ class FormGenerate(BaseModel):
 
     title: Title | None = None
     prompt: Prompt
+
+
+class FormResponseRead(BaseModel):
+    """Response model for a form response."""
+
+    id: str
+    answers: dict[str, Any]
+    created_at: datetime
