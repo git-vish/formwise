@@ -1,7 +1,7 @@
 [project]
 name = "formwise"
 version = "0.1.0"
-description = "Add your description here"
+description = "A FastAPI backend for Formwise, enabling AI-powered form creation with Groq LLM."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
