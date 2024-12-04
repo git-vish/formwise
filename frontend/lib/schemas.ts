@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Form } from "@/types/form";
 import type { DateField, Field, NumberField } from "@/types/field";
+import { formatDate } from "@/lib/utils";
 
 // Base schemas
 const emailSchema = z
@@ -116,15 +117,17 @@ export function generateFormwiseSchema(form: Form) {
       case "date":
         fieldSchema = z.date();
         if ((field as DateField).min_date) {
+          const minDate = new Date((field as DateField).min_date!);
           fieldSchema = (fieldSchema as z.ZodDate).min(
-            new Date((field as DateField).min_date!),
-            "Date is too early"
+            minDate,
+            `Date must be on or after ${formatDate(minDate.toISOString())}`
           );
         }
         if ((field as DateField).max_date) {
+          const maxDate = new Date((field as DateField).max_date!);
           fieldSchema = (fieldSchema as z.ZodDate).max(
-            new Date((field as DateField).max_date!),
-            "Date is too late"
+            maxDate,
+            `Date must be on or before ${formatDate(maxDate.toISOString())}`
           );
         }
         break;

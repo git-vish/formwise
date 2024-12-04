@@ -24,8 +24,6 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { FORM_URLS } from "@/config/api-urls";
 import { tokenService } from "@/lib/services/token";
 import { formatDate, formatDateTime } from "@/lib/utils";
-import { SelectTrigger, SelectValue } from "@radix-ui/react-select";
-import { Select, SelectContent, SelectItem } from "../ui/select";
 
 // Define response type based on your API structure
 interface FormResponse {
@@ -44,7 +42,7 @@ export default function FormResponses({ form }: FormResponsesProps) {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 10, // Fixed page size
   });
 
   // Fetch form responses
@@ -218,34 +216,7 @@ export default function FormResponses({ form }: FormResponsesProps) {
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
 
-          <div className="flex items-center px-2">
-            {/* Rows per page selector */}
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">
-                Rows per page
-              </span>
-              <Select
-                value={pagination.pageSize.toString()}
-                onValueChange={(value: string) =>
-                  setPagination((prev) => ({
-                    ...prev,
-                    pageSize: parseInt(value),
-                  }))
-                }
-              >
-                <SelectTrigger className="h-8 w-[70px] border">
-                  <SelectValue placeholder={pagination.pageSize} />
-                </SelectTrigger>
-                <SelectContent side="top">
-                  {[10, 30, 50].map((pageSize) => (
-                    <SelectItem key={pageSize} value={pageSize.toString()}>
-                      {pageSize}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
+          <div className="flex items-center justify-center px-2">
             {/* Pagination controls */}
             <div className="flex items-center space-x-2">
               <Button
