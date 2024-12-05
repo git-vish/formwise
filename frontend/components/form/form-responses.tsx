@@ -42,7 +42,7 @@ export default function FormResponses({ form }: FormResponsesProps) {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 1,
+    pageSize: 10,
   });
 
   const { forms, isLoading: formsLoading } = useForms();
