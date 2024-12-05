@@ -24,8 +24,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { FORM_URLS } from "@/config/api-urls";
 import { tokenService } from "@/lib/services/token";
 import { formatDate, formatDateTime } from "@/lib/utils";
+import { useForms } from "@/hooks/use-forms";
 
-// Define response type based on your API structure
 interface FormResponse {
   id: string;
   created_at: string;
@@ -42,8 +42,14 @@ export default function FormResponses({ form }: FormResponsesProps) {
   const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 10, // Fixed page size
+    pageSize: 1,
   });
+
+  const { forms, isLoading: formsLoading } = useForms();
+  const totalResponses = useMemo(() => {
+    const matchedForm = forms.find((f) => f.id === form.id);
+    return matchedForm ? matchedForm.response_count : 0;
+  }, [forms, form.id]);
 
   // Fetch form responses
   useEffect(() => {
@@ -91,7 +97,6 @@ export default function FormResponses({ form }: FormResponsesProps) {
   const columns = useMemo<ColumnDef<FormResponse>[]>(() => {
     if (!form.fields || responses.length === 0) return [];
 
-    // Base columns
     const baseColumns: ColumnDef<FormResponse>[] = [
       {
         accessorKey: "created_at",
@@ -103,14 +108,11 @@ export default function FormResponses({ form }: FormResponsesProps) {
       },
     ];
 
-    // Dynamically generate columns from form fields
     const fieldColumns = form.fields.map((field) => ({
       accessorKey: `answers.${field.tag}`,
       header: field.label,
       cell: ({ getValue }: { getValue: () => unknown }) => {
         const value = getValue();
-
-        // Handle different field type rendering
         switch (field.type) {
           case "multi_select":
             return Array.isArray(value) ? value.join(", ") : value;
@@ -138,12 +140,11 @@ export default function FormResponses({ form }: FormResponsesProps) {
     state: {
       pagination,
     },
-    pageCount: Math.ceil(responses.length / pagination.pageSize),
+    pageCount: Math.ceil(totalResponses / pagination.pageSize),
     onPaginationChange: setPagination,
   });
 
-  // Render loading state
-  if (isLoading) {
+  if (isLoading || formsLoading) {
     return (
       <div className="mx-auto my-8 space-y-6">
         <Card>
@@ -158,7 +159,6 @@ export default function FormResponses({ form }: FormResponsesProps) {
     );
   }
 
-  // Render error state
   if (error) {
     return (
       <div className="mx-auto my-8 space-y-6">
@@ -217,7 +217,6 @@ export default function FormResponses({ form }: FormResponsesProps) {
           </ScrollArea>
 
           <div className="flex items-center justify-center px-2">
-            {/* Pagination controls */}
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
